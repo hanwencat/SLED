@@ -7,4 +7,4 @@ Self-Labelled Encoder-Decoder (SLED) for myelin water imaging data analysis
 - Decoder: a typical 3-pool model (myelin, axonal, and free water pools)
 - Training: exclusively trained for each dataset which is self-labelled
 
-<img width="862" alt="sled_schematics" src="sled_schematics.png">
+<img width="750" alt="sled_schematics" src="sled_schematics.png">
