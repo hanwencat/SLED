@@ -151,7 +151,7 @@ class sled(nn.Module):
     
 
 
-def train_model(model, train_loader, loss_fn, optimizer, lr_scheduler, epochs):
+def train_model(model, device, train_loader, loss_fn, optimizer, lr_scheduler, epochs, return_loss_time=False):
     """
     training model with pre-defined loss function and optimizer
     """
@@ -190,6 +190,9 @@ def train_model(model, train_loader, loss_fn, optimizer, lr_scheduler, epochs):
     end_time = time.time() 
     elapsed_time = end_time - start_time
     print(f'Total training time: {elapsed_time:0.3f} seconds')
+    
+    if return_loss_time == True:
+        return loss_epoch, elapsed_time
 
 
 
@@ -277,9 +280,9 @@ if __name__ == "__main__":
         patience=2, 
         min_lr=1e-6,
         )
-    # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.5)
+    # lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.5)
     # loss_epoch = []
     # size = len(train_loader.dataset)
 
-    train_model(sled_3pool, train_loader, loss_fn, optimizer, lr_scheduler, epochs=10)
+    train_model(sled_3pool, device, train_loader, loss_fn, optimizer, lr_scheduler, epochs=10)
 
