@@ -134,15 +134,19 @@ class sled(nn.Module):
         self.encoder = encoder
         self.decoder = decoder
         
-    def forward(self,x):
+    def forward(self, x):
         t2s, amps = self.encoder(x)
         x = self.decoder.produce_signal_vectorized(self.te, t2s, amps)
         x = self.decoder.add_noise(x)
         return x
     
-    def latent_maps(self, image):
+    def latent_maps(self, image, device=torch.device("cpu")):
+        # produce latent parameter maps from the encoded layer
+        # use cpu at default if gpu doesn't have enough memory for the whole image
+        image = torch.tensor(image, dtype=torch.float32).to(device)
         self.eval()
         with torch.no_grad():
+            self.to(device)
             x = image.reshape(-1, image.shape[-1])
             t2s, amps = self.encoder(x)
             amps = amps/amps.sum(dim=-1, keepdim=True) # scale to have sum of 1
@@ -196,12 +200,13 @@ def train_model(model, device, train_loader, loss_fn, optimizer, lr_scheduler, e
 
 
 
+
 # Load data
 from torch.utils.data import TensorDataset
 from torch.utils.data import DataLoader
 import nibabel as nib
-import scipy
 import matplotlib.pyplot as plt
+# import scipy
 
 def load_data(image_path, mask_path, ETL=24):
     """
@@ -210,7 +215,8 @@ def load_data(image_path, mask_path, ETL=24):
     
     image =  nib.load(image_path).get_fdata()
     mask = nib.load(mask_path).get_fdata()
-    #mask = scipy.ndimage.morphology.binary_erosion(mask, iterations=3).astype(mask.dtype)
+    # uncomment the next line if mask erosion is needed.
+    # mask = scipy.ndimage.morphology.binary_erosion(mask, iterations=3).astype(mask.dtype)
     mask_4d = np.repeat(mask[:, :, :, np.newaxis], ETL, axis=3)
     mask_4d[mask_4d==0] = np.nan
     masked_image = image*mask_4d
@@ -248,7 +254,7 @@ if __name__ == "__main__":
     # construct sled model
     # define t2 range of each water pool
     range_t2_my = [0.005, 0.015]
-    range_t2_ie = [0.045, 0.6]
+    range_t2_ie = [0.045, 0.06]
     range_t2_fr = [0.1, 0.2]
 
     # to device is needed, otherwise error will be raised
@@ -260,13 +266,14 @@ if __name__ == "__main__":
     scaling = torch.quantile(x, 0.98, dim=0)[0] # scaling factor is larger than ~98% first echo intensities.
     #scaling = 10
 
-    encoder_3pool_model = encoder_3pool([24, 256, 128, 1], 
-                                        [24, 256, 256, 3], 
-                                        range_t2_my, 
-                                        range_t2_ie, 
-                                        range_t2_fr, 
-                                        amps_scaling=scaling,
-                                    )
+    encoder_3pool_model = encoder_3pool(
+        [24, 256, 128, 1], 
+        [24, 256, 256, 3], 
+        range_t2_my, 
+        range_t2_ie, 
+        range_t2_fr, 
+        amps_scaling=scaling,
+        )
     decoder_vpool_model = decoder_vpool(snr_range)
     sled_3pool = sled(te, encoder_3pool_model, decoder_vpool_model)
     sled_3pool.to(device)
@@ -284,5 +291,18 @@ if __name__ == "__main__":
     # loss_epoch = []
     # size = len(train_loader.dataset)
 
-    train_model(sled_3pool, device, train_loader, loss_fn, optimizer, lr_scheduler, epochs=10)
+    train_model(
+        sled_3pool, 
+        device, 
+        train_loader, 
+        loss_fn, 
+        optimizer, 
+        lr_scheduler, 
+        epochs=3,
+        return_loss_time=False,
+        )
+    
+    # produce metric maps
+    t2s_maps, amps_maps = sled_3pool.latent_maps(data)
+
 
