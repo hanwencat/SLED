@@ -115,7 +115,7 @@ class phantom_3pools:
                 ],
             aspect=(self.snr_range[1]-self.snr_range[0])/(self.mwf_range[1]-self.mwf_range[0]),
             )
-        plt.colorbar(shrink=0.69)
+        plt.colorbar()
         plt.show()
 
 
