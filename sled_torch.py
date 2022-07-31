@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 import time
+from cmath import inf
 
 # Construct SLED
 
@@ -14,8 +15,10 @@ def mlp_block(mlp_size):
     for in_f, out_f in zip(mlp_size[:-2], mlp_size[1:-1]):
         layers.append(nn.Linear(in_f, out_f))
         layers.append(nn.BatchNorm1d(out_f))
+        # layers.append(nn.ReLU())
         layers.append(nn.Sigmoid())
     layers.append(nn.Linear(mlp_size[-2], mlp_size[-1]))
+    # layers.append(nn.ReLU())
     layers.append(nn.Sigmoid())
     
     return nn.Sequential(*layers)
@@ -155,13 +158,24 @@ class sled(nn.Module):
     
 
 
-def train_model(model, device, train_loader, loss_fn, optimizer, lr_scheduler, epochs, return_loss_time=False):
+def train_model(model,
+                device,
+                train_loader,
+                loss_fn,
+                optimizer,
+                lr_scheduler,
+                epochs,
+                load_best_model=True,
+                return_loss_time=False):
     """
     training model with pre-defined loss function and optimizer
     """
 
     start_time = time.time() 
     loss_epoch = []
+    best_loss = torch.tensor(inf)
+    best_epoch = epochs
+
     for epoch in range(epochs):
         # training mode
         model.train()
@@ -190,14 +204,22 @@ def train_model(model, device, train_loader, loss_fn, optimizer, lr_scheduler, e
         print(f"Epoch {epoch+1:2}:   learning rate = {optimizer.param_groups[0]['lr']:>0.6f}   average loss = {loss_epoch[-1]:0.6f}")
         lr_scheduler.step(loss)
 
+        if loss_epoch[-1] < best_loss:
+            best_loss = loss_epoch[-1]
+            best_epoch = epoch+1
+            best_state_dict = model.state_dict()
 
+    # load the best model at epoch of the lowest loss during training
+    if load_best_model == True:
+        model.load_state_dict(best_state_dict)
+        print(f"best model found at epoch = {best_epoch} is loaded")
+    
     end_time = time.time() 
     elapsed_time = end_time - start_time
     print(f'Total training time: {elapsed_time:0.3f} seconds')
     
     if return_loss_time == True:
-        return loss_epoch, elapsed_time
-
+        return loss_epoch, best_epoch, elapsed_time
 
 
 
@@ -298,7 +320,8 @@ if __name__ == "__main__":
         loss_fn, 
         optimizer, 
         lr_scheduler, 
-        epochs=3,
+        epochs=10,
+        load_best_model=True,
         return_loss_time=False,
         )
     
