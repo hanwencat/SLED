@@ -8,102 +8,8 @@ import numpy as np
 import time
 
 
-# def phantom_make_3d(
-#     snr_range, 
-#     mwf_range, 
-#     exwf_range, 
-#     t2s, 
-#     x_dim, 
-#     y_dim, 
-#     z_dim, 
-#     echo_time,
-#     ):
-#     """
-#     make 3d phantom
-#     """
-
-#     # create placeholders
-#     snr = np.zeros([x_dim, y_dim, z_dim])
-#     mwf = np.zeros([x_dim, y_dim, z_dim])
-#     axwf = np.zeros([x_dim, y_dim, z_dim])
-#     exwf = np.zeros([x_dim, y_dim, z_dim])
-
-#     num_echo = len(echo_time)
-#     signal = np.zeros([x_dim, y_dim, z_dim, num_echo])
-#     noise = np.zeros([x_dim, y_dim, z_dim, num_echo])
-
-#     # produce the ground truth snr map
-#     for y in range(y_dim):
-#         snr[:, y, :] = snr_range[0] + y*(snr_range[1]-snr_range[0])/y_dim
-
-#     # produce the ground truth mwf map
-#     for x in range(x_dim):
-#         mwf[x, :, :] = mwf_range[1] - x*(mwf_range[1]-mwf_range[0])/x_dim
-        
-#     # produce the ground truth exwf map
-#     for z in range(z_dim):
-#         exwf[:, :, z] = exwf_range[0] + z*(exwf_range[1]-exwf_range[0])/z_dim
-    
-#     # produce the ground truth axwf map
-#     axwf = 1 - mwf - exwf
-    
-#     # produce the decay signals (no T1 compensation)
-#     t2_my = t2s[0]
-#     t2_ax = t2s[1]
-#     t2_ex = t2s[2]
-
-#     for x in range(x_dim):
-#         for y in range(y_dim):
-#             for z in range(z_dim):
-#                 # produce noise for each echo according to SNR (independent Gaussian noise on real and imaginary axes)
-#                 noise_mu = 0  # noise mean is 0
-#                 # noise variance is calculated according to snr
-#                 noise_sigma = 1/(snr[x, y, z]*((np.pi/2)**0.5))
-#                 noise[x, y, z, :] = np.squeeze(
-#                     abs((np.random.normal(
-#                         noise_mu, noise_sigma, [num_echo, 1])
-#                                       + 1j*np.random.normal(
-#                                         noise_mu, noise_sigma, [num_echo, 1]))))
-
-#                 # generate signal with noise added
-#                 signal[x, y, z, :] = (mwf[x, y, z] * np.exp(-(1/t2_my)*echo_time) 
-#                                    + axwf[x, y, z] * np.exp(-(1/t2_ax)*echo_time)
-#                                    + exwf[x, y, z] * np.exp(-(1/t2_ex)*echo_time)
-#                                    + noise[x, y, z, :]
-#                                   )
-    
-#     return signal, mwf, axwf, exwf, snr, noise
-
-
-
 if __name__ == "__main__":
-    # ## make the phantom using the following parameters
-    # snr_range = [50, 500]
-    # mwf_range = [0, 0.5]
-    # exwf_range = [0.05, 0.05]
-    # t2s = [0.01,0.05,0.25] # unit: seconds
-    # x_dim = 100
-    # y_dim = 100
-    # z_dim = 100
-    # echo_time = np.arange(0.002, 0.05, 0.002)
-
-    # class phantom:
-    #     pass
-    # phantom.signal, phantom.mwf, phantom.axwf, phantom.exwf, phantom.snr, phantom.noise = phantom_make_3d(
-    #     snr_range, 
-    #     mwf_range, 
-    #     exwf_range, 
-    #     t2s, 
-    #     x_dim, 
-    #     y_dim, 
-    #     z_dim, 
-    #     echo_time,
-    #     )
-
-    # phantom.data_flat, phantom_data_norm = sd.preprocess_data(phantom.signal)
-    # # print(phantom.data_flat.shape)      
-    
-
+    # make the phantom 
     phantom = pt.phantom_3pools(
         dims=[100, 100, 100],
         mwf_range=[0, 0.5],
@@ -113,13 +19,13 @@ if __name__ == "__main__":
         te=np.arange(0.002, 0.05, 0.002),
     )
 
+    # preprocess phantom data
     phantom.data_flat, phantom_data_norm = sd.preprocess_data(phantom.signal)
 
     # load phantom data
     x = torch.tensor(phantom.data_flat, dtype=torch.float32)
     train_data = TensorDataset(x, x)
     train_loader = DataLoader(train_data, batch_size=2048, shuffle=True)
-
 
     ## construct sled model
     # define t2 range of each water pool
@@ -149,7 +55,7 @@ if __name__ == "__main__":
         writer.writerow(list(hidden_layer_all))
  
     ## repeated tests
-    test_reps = 1    
+    test_reps = 10    
     test_start_time = time.time()
     
     for rep in range(test_reps):
@@ -193,20 +99,21 @@ if __name__ == "__main__":
                 min_lr=1e-6,
                 )
 
-            loss, training_time = sd.train_model(
+            loss, best_epoch, training_time = sd.train_model(
                 sled_3pool,
                 device, 
                 train_loader, 
                 loss_fn, 
                 optimizer, 
                 lr_scheduler, 
-                epochs=25,
+                epochs=15,
+                load_best_model=True,
                 return_loss_time=True,
                 )
             
-            loss_all.append(loss[-1].cpu().numpy().astype(np.float32))
+            loss_all.append(loss[best_epoch-1].cpu().numpy().astype(np.float32))
             # training_time_all.append(training_time)
-            print(f"loss: {loss[-1]:0.6f}\n")
+            print(f"best loss: {loss[best_epoch-1]:0.6f}\n")
 
         with open(csv_file, 'a') as csvfile:
             writer = csv.writer(csvfile)
