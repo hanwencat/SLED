@@ -106,11 +106,7 @@ if __name__ == "__main__":
                 loss_fn, 
                 optimizer, 
                 lr_scheduler, 
-<<<<<<< HEAD
                 epochs=30,
-=======
-                epochs=15,
->>>>>>> b16731d221f3b82909e15ed0288e55e0af0847a4
                 load_best_model=True,
                 return_loss_time=True,
                 )
