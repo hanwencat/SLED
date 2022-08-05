@@ -102,7 +102,7 @@ def signal_model(args):
         return noisy_signal 
 
 
-def train_model(model, data, epochs = 30):
+def train_model(model, data, epochs = 30, return_history=False):
     """compile and fit sled model"""
 
     model.compile(
@@ -119,13 +119,16 @@ def train_model(model, data, epochs = 30):
         keras.callbacks.ReduceLROnPlateau(monitor='loss', factor=0.5, patience=3),
     ]
 
-    model.fit(
+    history = model.fit(
         data, 
         data, 
         epochs=epochs, 
         batch_size=256, 
         callbacks=callbacks_list,
         )
+    
+    if return_history == True:
+        return history
 
 
 
