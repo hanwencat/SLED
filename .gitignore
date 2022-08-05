@@ -1,6 +1,7 @@
 test.ipynb
 sled_example_tf.ipynb
 nn_config_test_results.csv
+nn_config_test_tf_results.csv
 sled_torch_draft/
 __pycache__/
 .vscode/
