@@ -1,3 +1,4 @@
+from tabnanny import verbose
 import numpy as np
 import tensorflow as tf
 import keras
@@ -102,7 +103,7 @@ def signal_model(args):
         return noisy_signal 
 
 
-def train_model(model, data, epochs = 30, return_history=False):
+def train_model(model, data, epochs = 30, return_history=False, verbose=1):
     """compile and fit sled model"""
 
     model.compile(
@@ -125,6 +126,7 @@ def train_model(model, data, epochs = 30, return_history=False):
         epochs=epochs, 
         batch_size=256, 
         callbacks=callbacks_list,
+        verbose=verbose,
         )
     
     if return_history == True:
