@@ -205,10 +205,10 @@ if __name__ == "__main__":
     te = tf.range(0.002, 0.05, 0.002) 
     nn_layers_t2s = [256, 128, 1]
     nn_layers_amps = [256, 256, 3]
-    range_t2_my = [0.005, 0.015]
-    range_t2_ie = [0.045, 0.06]
-    range_t2_fr = [0.1, 0.2]
-    snr_range = [50., 500.]
+    range_t2_my = [0.003, 0.015]
+    range_t2_ie = [0.045, 0.07]
+    range_t2_fr = [0.2, 0.3]
+    snr_range = [50., 300.]
     # amps_scaling = 8
     amps_scaling = np.quantile(data_flat, 0.99, axis=0)[0]
     print(f"amplitude scaling factor = {amps_scaling}")
@@ -228,7 +228,7 @@ if __name__ == "__main__":
     sled.summary()
 
     # train sled model
-    train_model(sled, data_flat, epochs=20)
+    train_model(sled, data_flat, epochs=30)
 
     # produce metric maps
     t2s_maps, amps_maps = latent_maps(encoder, data, latent_dim=3)
