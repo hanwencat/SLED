@@ -103,8 +103,11 @@ def signal_model(args):
         return noisy_signal 
 
 
-def train_model(model, data, epochs = 30, return_history=False, verbose=1):
-    """compile and fit sled model"""
+def train_model(model, data, epochs = 30, return_history=False, verbose=2):
+    """
+    compile and fit sled model
+    use verbose=2 if return_history=True (https://github.com/tensorflow/tensorflow/issues/48033)
+    """
 
     model.compile(
         optimizer=keras.optimizers.Adamax(
