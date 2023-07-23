@@ -1,0 +1,444 @@
+2023-03-27 21:53:02 [INFO] Experiment begins at 2023/03/27 21:53:02
+2023-03-27 21:53:02 [INFO] Config file contents:
+2023-03-27 21:53:02 [INFO] realizations: 1000
+2023-03-27 21:53:02 [INFO] ncores: 2
+2023-03-27 21:53:02 [INFO] snr_min: 50
+2023-03-27 21:53:02 [INFO] snr_max: 500
+2023-03-27 21:53:02 [INFO] etl: 48
+2023-03-27 21:53:02 [INFO] delta_te: 8
+2023-03-27 21:53:02 [INFO] T1_fix: 2000
+2023-03-27 21:53:02 [INFO] num_t2_basis: 40
+2023-03-27 21:53:02 [INFO] FA_min: 50
+2023-03-27 21:53:02 [INFO] T2_min: 5
+2023-03-27 21:53:02 [INFO] T2_max: 1000
+2023-03-27 21:53:02 [INFO] gaussian_width: 1
+2023-03-27 21:53:02 [INFO] exclude_M_max: True
+2023-03-27 21:53:02 [INFO] save_path: sled_mese/data/same_ecos/se_grase_48echo.pickle
+2023-03-27 21:53:02 [INFO] log_path: sled_mese/logs/same_ecos.log
+2023-03-27 21:53:02 [INFO] SAME-ECOS training data production in progress
+2023-03-27 21:53:02 [DEBUG] PID 31894 Progress: 0/500
+2023-03-27 21:53:02 [DEBUG] PID 31893 Progress: 0/500
+2023-03-27 21:53:04 [DEBUG] PID 31894 Progress: 50/500
+2023-03-27 21:53:04 [DEBUG] PID 31893 Progress: 50/500
+2023-03-27 21:53:06 [DEBUG] PID 31894 Progress: 100/500
+2023-03-27 21:53:06 [DEBUG] PID 31893 Progress: 100/500
+2023-03-27 21:53:08 [DEBUG] PID 31894 Progress: 150/500
+2023-03-27 21:53:08 [DEBUG] PID 31893 Progress: 150/500
+2023-03-27 21:53:10 [DEBUG] PID 31894 Progress: 200/500
+2023-03-27 21:53:10 [DEBUG] PID 31893 Progress: 200/500
+2023-03-27 21:53:12 [DEBUG] PID 31894 Progress: 250/500
+2023-03-27 21:53:12 [DEBUG] PID 31893 Progress: 250/500
+2023-03-27 21:53:14 [DEBUG] PID 31893 Progress: 300/500
+2023-03-27 21:53:14 [DEBUG] PID 31894 Progress: 300/500
+2023-03-27 21:53:16 [DEBUG] PID 31893 Progress: 350/500
+2023-03-27 21:53:16 [DEBUG] PID 31894 Progress: 350/500
+2023-03-27 21:53:18 [DEBUG] PID 31893 Progress: 400/500
+2023-03-27 21:53:19 [DEBUG] PID 31894 Progress: 400/500
+2023-03-27 21:53:20 [DEBUG] PID 31893 Progress: 450/500
+2023-03-27 21:53:21 [DEBUG] PID 31894 Progress: 450/500
+2023-03-27 21:53:23 [INFO] SAME-ECOS training data production finished
+2023-03-27 21:53:23 [INFO] data keys: dict_keys(['T2_location', 'T2_amplitude', 'decay_curve', 'decay_curve_with_noise', 'spectrum_nearest', 'spectrum_gaussian', 'num_T2_SNR_FA'])
+2023-03-27 21:53:23 [INFO] Elapsed time: 21.36 seconds
+2023-03-27 21:53:23 [INFO] SAME-ECOS training data production are saved in 'sled_mese/data/same_ecos/se_grase_48echo.pickle'
+
+2023-03-27 22:00:58 [INFO] Experiment begins at 2023/03/27 22:00:58
+2023-03-27 22:00:58 [INFO] Config file contents:
+2023-03-27 22:00:58 [INFO] realizations: 1000
+2023-03-27 22:00:58 [INFO] ncores: 2
+2023-03-27 22:00:58 [INFO] snr_min: 50
+2023-03-27 22:00:58 [INFO] snr_max: 500
+2023-03-27 22:00:58 [INFO] etl: 48
+2023-03-27 22:00:58 [INFO] delta_te: 8
+2023-03-27 22:00:58 [INFO] T1_fix: 2000
+2023-03-27 22:00:58 [INFO] num_t2_basis: 40
+2023-03-27 22:00:58 [INFO] FA_min: 50
+2023-03-27 22:00:58 [INFO] T2_min: 5
+2023-03-27 22:00:58 [INFO] T2_max: 1000
+2023-03-27 22:00:58 [INFO] gaussian_width: 1
+2023-03-27 22:00:58 [INFO] exclude_M_max: True
+2023-03-27 22:00:58 [INFO] save_path: sled_mese/data/same_ecos/se_grase_48echo.pickle
+2023-03-27 22:00:58 [INFO] log_path: sled_mese/logs/same_ecos.log
+2023-03-27 22:00:58 [INFO] SAME-ECOS training data production in progress
+2023-03-27 22:00:59 [DEBUG] PID 2350 Progress: 0/500
+2023-03-27 22:00:59 [DEBUG] PID 2334 Progress: 0/500
+2023-03-27 22:01:00 [DEBUG] PID 2350 Progress: 50/500
+2023-03-27 22:01:01 [DEBUG] PID 2334 Progress: 50/500
+2023-03-27 22:01:03 [DEBUG] PID 2350 Progress: 100/500
+2023-03-27 22:01:03 [DEBUG] PID 2334 Progress: 100/500
+2023-03-27 22:01:05 [DEBUG] PID 2350 Progress: 150/500
+2023-03-27 22:01:05 [DEBUG] PID 2334 Progress: 150/500
+2023-03-27 22:01:07 [DEBUG] PID 2350 Progress: 200/500
+2023-03-27 22:01:07 [DEBUG] PID 2334 Progress: 200/500
+2023-03-27 22:01:09 [DEBUG] PID 2350 Progress: 250/500
+2023-03-27 22:01:09 [DEBUG] PID 2334 Progress: 250/500
+2023-03-27 22:01:10 [DEBUG] PID 2350 Progress: 300/500
+2023-03-27 22:01:11 [DEBUG] PID 2334 Progress: 300/500
+2023-03-27 22:01:13 [DEBUG] PID 2350 Progress: 350/500
+2023-03-27 22:01:13 [DEBUG] PID 2334 Progress: 350/500
+2023-03-27 22:01:14 [DEBUG] PID 2350 Progress: 400/500
+2023-03-27 22:01:15 [DEBUG] PID 2334 Progress: 400/500
+2023-03-27 22:01:17 [DEBUG] PID 2350 Progress: 450/500
+2023-03-27 22:01:17 [DEBUG] PID 2334 Progress: 450/500
+2023-03-27 22:01:19 [INFO] SAME-ECOS training data production finished
+2023-03-27 22:01:19 [INFO] data keys: dict_keys(['T2_location', 'T2_amplitude', 'decay_curve', 'decay_curve_with_noise', 'spectrum_nearest', 'spectrum_gaussian', 'num_T2_SNR_FA'])
+2023-03-27 22:01:19 [INFO] Elapsed time: 20.47 seconds
+2023-03-27 22:01:19 [INFO] SAME-ECOS training data production are saved in 'sled_mese/data/same_ecos/se_grase_48echo.pickle'
+
+2023-03-27 22:01:37 [INFO] Experiment begins at 2023/03/27 22:01:37
+2023-03-27 22:01:37 [INFO] Config file contents:
+2023-03-27 22:01:37 [INFO] realizations: 1000000
+2023-03-27 22:01:37 [INFO] ncores: 2
+2023-03-27 22:01:37 [INFO] snr_min: 50
+2023-03-27 22:01:37 [INFO] snr_max: 500
+2023-03-27 22:01:37 [INFO] etl: 48
+2023-03-27 22:01:37 [INFO] delta_te: 8
+2023-03-27 22:01:37 [INFO] T1_fix: 2000
+2023-03-27 22:01:37 [INFO] num_t2_basis: 40
+2023-03-27 22:01:37 [INFO] FA_min: 50
+2023-03-27 22:01:37 [INFO] T2_min: 5
+2023-03-27 22:01:37 [INFO] T2_max: 1000
+2023-03-27 22:01:37 [INFO] gaussian_width: 1
+2023-03-27 22:01:37 [INFO] exclude_M_max: True
+2023-03-27 22:01:37 [INFO] save_path: sled_mese/data/same_ecos/se_grase_48echo.pickle
+2023-03-27 22:01:37 [INFO] log_path: sled_mese/logs/same_ecos.log
+2023-03-27 22:01:37 [INFO] SAME-ECOS training data production in progress
+2023-03-27 22:01:37 [DEBUG] PID 2608 Progress: 0/500000
+2023-03-27 22:01:37 [DEBUG] PID 2609 Progress: 0/500000
+2023-03-27 22:35:36 [DEBUG] PID 2609 Progress: 50000/500000
+2023-03-27 22:35:38 [DEBUG] PID 2608 Progress: 50000/500000
+2023-03-27 23:09:53 [DEBUG] PID 2609 Progress: 100000/500000
+2023-03-27 23:09:53 [DEBUG] PID 2608 Progress: 100000/500000
+2023-03-27 23:42:53 [DEBUG] PID 2609 Progress: 150000/500000
+2023-03-27 23:42:54 [DEBUG] PID 2608 Progress: 150000/500000
+2023-03-28 00:17:06 [DEBUG] PID 2609 Progress: 200000/500000
+2023-03-28 00:17:17 [DEBUG] PID 2608 Progress: 200000/500000
+2023-03-28 00:50:12 [DEBUG] PID 2609 Progress: 250000/500000
+2023-03-28 00:50:29 [DEBUG] PID 2608 Progress: 250000/500000
+2023-03-28 01:24:20 [DEBUG] PID 2609 Progress: 300000/500000
+2023-03-28 01:24:38 [DEBUG] PID 2608 Progress: 300000/500000
+2023-03-28 01:58:05 [DEBUG] PID 2609 Progress: 350000/500000
+2023-03-28 01:58:31 [DEBUG] PID 2608 Progress: 350000/500000
+2023-03-28 02:33:08 [DEBUG] PID 2609 Progress: 400000/500000
+2023-03-28 02:33:30 [DEBUG] PID 2608 Progress: 400000/500000
+2023-03-28 03:08:11 [DEBUG] PID 2609 Progress: 450000/500000
+2023-03-28 03:08:24 [DEBUG] PID 2608 Progress: 450000/500000
+2023-03-28 03:42:55 [INFO] SAME-ECOS training data production finished
+2023-03-28 03:42:55 [INFO] data keys: dict_keys(['T2_location', 'T2_amplitude', 'decay_curve', 'decay_curve_with_noise', 'spectrum_nearest', 'spectrum_gaussian', 'num_T2_SNR_FA'])
+2023-03-28 03:42:55 [INFO] Elapsed time: 20478.24 seconds
+2023-03-28 03:42:56 [INFO] SAME-ECOS training data production are saved in 'sled_mese/data/same_ecos/se_grase_48echo.pickle'
+
+2023-03-28 03:55:53 [INFO] Experiment name: SAME-ECOS training data for 3T CALIPR data
+2023-03-28 03:55:53 [INFO] Experiment begins at 2023/03/28 03:55:53
+2023-03-28 03:55:53 [INFO] Config file contents:
+2023-03-28 03:55:53 [INFO] name: SAME-ECOS training data for 3T CALIPR data
+2023-03-28 03:55:53 [INFO] realizations: 1000
+2023-03-28 03:55:53 [INFO] ncores: 2
+2023-03-28 03:55:53 [INFO] snr_min: 50.0
+2023-03-28 03:55:53 [INFO] snr_max: 500.0
+2023-03-28 03:55:53 [INFO] etl: 56
+2023-03-28 03:55:53 [INFO] delta_te: 6.0
+2023-03-28 03:55:53 [INFO] T1_fix: 2000.0
+2023-03-28 03:55:53 [INFO] num_t2_basis: 40
+2023-03-28 03:55:53 [INFO] FA_min: 50.0
+2023-03-28 03:55:53 [INFO] T2_min: 5.0
+2023-03-28 03:55:53 [INFO] T2_max: 1000.0
+2023-03-28 03:55:53 [INFO] gaussian_width: 1.0
+2023-03-28 03:55:53 [INFO] exclude_M_max: True
+2023-03-28 03:55:53 [INFO] save_path: sled_mese/data/same_ecos/se_calipr_56echo.pickle
+2023-03-28 03:55:53 [INFO] log_path: sled_mese/logs/same_ecos.log
+2023-03-28 03:55:53 [INFO] SAME-ECOS training data production in progress
+2023-03-28 03:55:53 [DEBUG] PID 27160 Progress: 0/500
+2023-03-28 03:55:53 [DEBUG] PID 27162 Progress: 0/500
+2023-03-28 03:55:57 [DEBUG] PID 27160 Progress: 50/500
+2023-03-28 03:55:57 [DEBUG] PID 27162 Progress: 50/500
+2023-03-28 03:56:01 [DEBUG] PID 27160 Progress: 100/500
+2023-03-28 03:56:01 [DEBUG] PID 27162 Progress: 100/500
+2023-03-28 03:56:04 [DEBUG] PID 27160 Progress: 150/500
+2023-03-28 03:56:05 [DEBUG] PID 27162 Progress: 150/500
+2023-03-28 03:56:08 [DEBUG] PID 27160 Progress: 200/500
+2023-03-28 03:56:09 [DEBUG] PID 27162 Progress: 200/500
+2023-03-28 03:56:11 [DEBUG] PID 27160 Progress: 250/500
+2023-03-28 03:56:12 [DEBUG] PID 27162 Progress: 250/500
+2023-03-28 03:56:15 [DEBUG] PID 27160 Progress: 300/500
+2023-03-28 03:56:16 [DEBUG] PID 27162 Progress: 300/500
+2023-03-28 03:56:18 [DEBUG] PID 27160 Progress: 350/500
+2023-03-28 03:56:19 [DEBUG] PID 27162 Progress: 350/500
+2023-03-28 03:56:21 [DEBUG] PID 27160 Progress: 400/500
+2023-03-28 03:56:23 [DEBUG] PID 27162 Progress: 400/500
+2023-03-28 03:56:25 [DEBUG] PID 27160 Progress: 450/500
+2023-03-28 03:56:26 [DEBUG] PID 27162 Progress: 450/500
+2023-03-28 03:56:29 [INFO] SAME-ECOS training data production finished
+2023-03-28 03:56:29 [INFO] data keys: dict_keys(['T2_location', 'T2_amplitude', 'decay_curve', 'decay_curve_with_noise', 'spectrum_nearest', 'spectrum_gaussian', 'num_T2_SNR_FA'])
+2023-03-28 03:56:29 [INFO] Elapsed time: 35.71 seconds
+2023-03-28 03:56:29 [INFO] SAME-ECOS training data are saved in 'sled_mese/data/same_ecos/se_calipr_56echo.pickle'
+
+2023-03-28 03:57:29 [INFO] Experiment name: SAME-ECOS training data for 3T CALIPR data
+2023-03-28 03:57:29 [INFO] Experiment begins at 2023/03/28 03:57:29
+2023-03-28 03:57:29 [INFO] Config file contents:
+2023-03-28 03:57:29 [INFO] name: SAME-ECOS training data for 3T CALIPR data
+2023-03-28 03:57:29 [INFO] realizations: 1000000
+2023-03-28 03:57:29 [INFO] ncores: 2
+2023-03-28 03:57:29 [INFO] snr_min: 50.0
+2023-03-28 03:57:29 [INFO] snr_max: 500.0
+2023-03-28 03:57:29 [INFO] etl: 56
+2023-03-28 03:57:29 [INFO] delta_te: 6.0
+2023-03-28 03:57:29 [INFO] T1_fix: 2000.0
+2023-03-28 03:57:29 [INFO] num_t2_basis: 40
+2023-03-28 03:57:29 [INFO] FA_min: 50.0
+2023-03-28 03:57:29 [INFO] T2_min: 5.0
+2023-03-28 03:57:29 [INFO] T2_max: 1000.0
+2023-03-28 03:57:29 [INFO] gaussian_width: 1.0
+2023-03-28 03:57:29 [INFO] exclude_M_max: True
+2023-03-28 03:57:29 [INFO] save_path: sled_mese/data/same_ecos/se_calipr_56echo.pickle
+2023-03-28 03:57:29 [INFO] log_path: sled_mese/logs/same_ecos.log
+2023-03-28 03:57:29 [INFO] SAME-ECOS training data production in progress
+2023-03-28 03:57:29 [DEBUG] PID 27630 Progress: 0/500000
+2023-03-28 03:57:29 [DEBUG] PID 27629 Progress: 0/500000
+2023-03-28 04:55:19 [DEBUG] PID 27629 Progress: 50000/500000
+2023-03-28 04:55:26 [DEBUG] PID 27630 Progress: 50000/500000
+2023-03-28 05:53:19 [DEBUG] PID 27629 Progress: 100000/500000
+2023-03-28 05:53:25 [DEBUG] PID 27630 Progress: 100000/500000
+2023-03-28 06:51:13 [DEBUG] PID 27629 Progress: 150000/500000
+2023-03-28 06:51:27 [DEBUG] PID 27630 Progress: 150000/500000
+2023-03-28 07:49:06 [DEBUG] PID 27629 Progress: 200000/500000
+2023-03-28 07:49:28 [DEBUG] PID 27630 Progress: 200000/500000
+2023-03-28 08:47:08 [DEBUG] PID 27629 Progress: 250000/500000
+2023-03-28 08:47:36 [DEBUG] PID 27630 Progress: 250000/500000
+2023-03-28 09:45:02 [DEBUG] PID 27629 Progress: 300000/500000
+2023-03-28 09:45:35 [DEBUG] PID 27630 Progress: 300000/500000
+2023-03-28 10:42:56 [DEBUG] PID 27629 Progress: 350000/500000
+2023-03-28 10:43:35 [DEBUG] PID 27630 Progress: 350000/500000
+2023-03-28 11:40:57 [DEBUG] PID 27629 Progress: 400000/500000
+2023-03-28 11:41:26 [DEBUG] PID 27630 Progress: 400000/500000
+2023-03-28 12:38:46 [DEBUG] PID 27629 Progress: 450000/500000
+2023-03-28 12:39:39 [DEBUG] PID 27630 Progress: 450000/500000
+2023-03-28 13:37:44 [INFO] SAME-ECOS training data production finished
+2023-03-28 13:37:44 [INFO] data keys: dict_keys(['T2_location', 'T2_amplitude', 'decay_curve', 'decay_curve_with_noise', 'spectrum_nearest', 'spectrum_gaussian', 'num_T2_SNR_FA'])
+2023-03-28 13:37:44 [INFO] Elapsed time: 34814.53 seconds
+2023-03-28 13:37:45 [INFO] SAME-ECOS training data are saved in 'sled_mese/data/same_ecos/se_calipr_56echo.pickle'
+
+2023-04-01 01:18:41 [INFO] Experiment name: SAME-ECOS training data for 64mT hyperfine MWI data
+2023-04-01 01:18:41 [INFO] Experiment begins at 2023/04/01 01:18:41
+2023-04-01 01:18:41 [INFO] Config file contents:
+2023-04-01 01:18:41 [INFO] name: SAME-ECOS training data for 64mT hyperfine MWI data
+2023-04-01 01:18:41 [INFO] realizations: 1000
+2023-04-01 01:18:41 [INFO] ncores: 2
+2023-04-01 01:18:41 [INFO] snr_min: 50
+2023-04-01 01:18:41 [INFO] snr_max: 500
+2023-04-01 01:18:41 [INFO] etl: 120
+2023-04-01 01:18:41 [INFO] delta_te: 4.1
+2023-04-01 01:18:41 [INFO] T1_fix: 2000
+2023-04-01 01:18:41 [INFO] num_t2_basis: 40
+2023-04-01 01:18:41 [INFO] FA_min: 50
+2023-04-01 01:18:41 [INFO] T2_min: 5
+2023-04-01 01:18:41 [INFO] T2_max: 1000
+2023-04-01 01:18:41 [INFO] gaussian_width: 1
+2023-04-01 01:18:41 [INFO] exclude_M_max: True
+2023-04-01 01:18:41 [INFO] save_path: data/same_ecos/se_hyperfine_120echo.pickle
+2023-04-01 01:18:41 [INFO] log_path: logs/same_ecos.log
+2023-04-01 01:18:41 [INFO] SAME-ECOS training data production in progress
+2023-04-01 01:18:43 [DEBUG] PID 14298 Progress: 0/500
+2023-04-01 01:18:43 [DEBUG] PID 14299 Progress: 0/500
+2023-04-01 01:20:04 [DEBUG] PID 14298 Progress: 50/500
+2023-04-01 01:20:05 [DEBUG] PID 14299 Progress: 50/500
+2023-04-01 01:21:16 [DEBUG] PID 14298 Progress: 100/500
+2023-04-01 01:21:18 [DEBUG] PID 14299 Progress: 100/500
+2023-04-01 01:22:33 [DEBUG] PID 14298 Progress: 150/500
+2023-04-01 01:22:33 [DEBUG] PID 14299 Progress: 150/500
+2023-04-01 01:23:47 [DEBUG] PID 14299 Progress: 200/500
+2023-04-01 01:23:47 [DEBUG] PID 14298 Progress: 200/500
+2023-04-01 01:25:10 [DEBUG] PID 14299 Progress: 250/500
+2023-04-01 01:25:10 [DEBUG] PID 14298 Progress: 250/500
+2023-04-01 01:26:23 [DEBUG] PID 14299 Progress: 300/500
+2023-04-01 01:26:24 [DEBUG] PID 14298 Progress: 300/500
+2023-04-01 01:27:35 [DEBUG] PID 14299 Progress: 350/500
+2023-04-01 01:27:36 [DEBUG] PID 14298 Progress: 350/500
+2023-04-01 01:28:45 [DEBUG] PID 14299 Progress: 400/500
+2023-04-01 01:28:45 [DEBUG] PID 14298 Progress: 400/500
+2023-04-01 01:29:49 [DEBUG] PID 14299 Progress: 450/500
+2023-04-01 01:29:51 [DEBUG] PID 14298 Progress: 450/500
+2023-04-01 01:31:07 [INFO] SAME-ECOS training data production finished
+2023-04-01 01:31:07 [INFO] data keys: dict_keys(['T2_location', 'T2_amplitude', 'decay_curve', 'decay_curve_with_noise', 'spectrum_nearest', 'spectrum_gaussian', 'num_T2_SNR_FA'])
+2023-04-01 01:31:07 [INFO] Elapsed time: 745.40 seconds
+2023-04-01 01:31:07 [INFO] SAME-ECOS training data are saved in 'data/same_ecos/se_hyperfine_120echo.pickle'
+
+2023-04-01 03:41:23 [INFO] Experiment name: SAME-ECOS training data for 64mT hyperfine MWI data
+2023-04-01 03:41:23 [INFO] Experiment begins at 2023/04/01 03:41:23
+2023-04-01 03:41:23 [INFO] Config file contents:
+2023-04-01 03:41:23 [INFO] name: SAME-ECOS training data for 64mT hyperfine MWI data
+2023-04-01 03:41:23 [INFO] realizations: 100
+2023-04-01 03:41:23 [INFO] ncores: 2
+2023-04-01 03:41:23 [INFO] snr_min: 50
+2023-04-01 03:41:23 [INFO] snr_max: 500
+2023-04-01 03:41:23 [INFO] etl: 120
+2023-04-01 03:41:23 [INFO] delta_te: 4.1
+2023-04-01 03:41:23 [INFO] T1_fix: 2000
+2023-04-01 03:41:23 [INFO] num_t2_basis: 40
+2023-04-01 03:41:23 [INFO] FA_min: 50
+2023-04-01 03:41:23 [INFO] T2_min: 5
+2023-04-01 03:41:23 [INFO] T2_max: 1000
+2023-04-01 03:41:23 [INFO] gaussian_width: 1
+2023-04-01 03:41:23 [INFO] exclude_M_max: True
+2023-04-01 03:41:23 [INFO] save_path: data/same_ecos/se_hyperfine_120echo.pickle
+2023-04-01 03:41:23 [INFO] log_path: logs/same_ecos.log
+2023-04-01 03:41:23 [INFO] SAME-ECOS training data production in progress
+2023-04-01 03:41:25 [DEBUG] PID 25616 Progress: 0/50
+2023-04-01 03:41:25 [DEBUG] PID 25615 Progress: 0/50
+2023-04-01 03:41:33 [DEBUG] PID 25616 Progress: 5/50
+2023-04-01 03:41:33 [DEBUG] PID 25615 Progress: 5/50
+2023-04-01 03:41:38 [DEBUG] PID 25616 Progress: 10/50
+2023-04-01 03:41:39 [DEBUG] PID 25615 Progress: 10/50
+2023-04-01 03:41:45 [DEBUG] PID 25616 Progress: 15/50
+2023-04-01 03:41:45 [DEBUG] PID 25615 Progress: 15/50
+2023-04-01 03:41:51 [DEBUG] PID 25616 Progress: 20/50
+2023-04-01 03:41:52 [DEBUG] PID 25615 Progress: 20/50
+2023-04-01 03:41:58 [DEBUG] PID 25616 Progress: 25/50
+2023-04-01 03:41:58 [DEBUG] PID 25615 Progress: 25/50
+2023-04-01 03:42:08 [DEBUG] PID 25616 Progress: 30/50
+2023-04-01 03:42:08 [DEBUG] PID 25615 Progress: 30/50
+2023-04-01 03:42:14 [DEBUG] PID 25616 Progress: 35/50
+2023-04-01 03:42:14 [DEBUG] PID 25615 Progress: 35/50
+2023-04-01 03:42:20 [DEBUG] PID 25616 Progress: 40/50
+2023-04-01 03:42:20 [DEBUG] PID 25615 Progress: 40/50
+2023-04-01 03:42:27 [DEBUG] PID 25616 Progress: 45/50
+2023-04-01 03:42:27 [DEBUG] PID 25615 Progress: 45/50
+2023-04-01 03:42:35 [INFO] SAME-ECOS training data production finished
+2023-04-01 03:42:35 [INFO] data keys: dict_keys(['T2_location', 'T2_amplitude', 'decay_curve', 'decay_curve_with_noise', 'spectrum_nearest', 'spectrum_gaussian', 'num_T2_SNR_FA'])
+2023-04-01 03:42:35 [INFO] Elapsed time: 72.08 seconds
+2023-04-01 03:42:35 [INFO] SAME-ECOS training data are saved in 'data/same_ecos/se_hyperfine_120echo.pickle'
+
+2023-04-01 03:42:45 [INFO] Experiment name: SAME-ECOS training data for 64mT hyperfine MWI data
+2023-04-01 03:42:45 [INFO] Experiment begins at 2023/04/01 03:42:45
+2023-04-01 03:42:45 [INFO] Config file contents:
+2023-04-01 03:42:45 [INFO] name: SAME-ECOS training data for 64mT hyperfine MWI data
+2023-04-01 03:42:45 [INFO] realizations: 100
+2023-04-01 03:42:45 [INFO] ncores: 2
+2023-04-01 03:42:45 [INFO] snr_min: 50
+2023-04-01 03:42:45 [INFO] snr_max: 500
+2023-04-01 03:42:45 [INFO] etl: 120
+2023-04-01 03:42:45 [INFO] delta_te: 4.1
+2023-04-01 03:42:45 [INFO] T1_fix: 2000
+2023-04-01 03:42:45 [INFO] num_t2_basis: 40
+2023-04-01 03:42:45 [INFO] FA_min: 50
+2023-04-01 03:42:45 [INFO] T2_min: 5
+2023-04-01 03:42:45 [INFO] T2_max: 1000
+2023-04-01 03:42:45 [INFO] gaussian_width: 1
+2023-04-01 03:42:45 [INFO] exclude_M_max: True
+2023-04-01 03:42:45 [INFO] save_path: data/same_ecos/se_hyperfine_120echo.pickle
+2023-04-01 03:42:45 [INFO] log_path: logs/same_ecos.log
+2023-04-01 03:42:45 [INFO] SAME-ECOS training data production in progress
+2023-04-01 03:42:48 [DEBUG] PID 26150 Progress: 0/50
+2023-04-01 03:42:48 [DEBUG] PID 26151 Progress: 0/50
+2023-04-01 03:42:55 [DEBUG] PID 26150 Progress: 5/50
+2023-04-01 03:42:55 [DEBUG] PID 26151 Progress: 5/50
+2023-04-01 03:43:04 [DEBUG] PID 26150 Progress: 10/50
+2023-04-01 03:43:05 [DEBUG] PID 26151 Progress: 10/50
+2023-04-01 03:43:12 [DEBUG] PID 26150 Progress: 15/50
+2023-04-01 03:43:13 [DEBUG] PID 26151 Progress: 15/50
+2023-04-01 03:43:19 [DEBUG] PID 26150 Progress: 20/50
+2023-04-01 03:43:20 [DEBUG] PID 26151 Progress: 20/50
+2023-04-01 03:43:26 [DEBUG] PID 26150 Progress: 25/50
+2023-04-01 03:43:26 [DEBUG] PID 26151 Progress: 25/50
+2023-04-01 03:43:36 [DEBUG] PID 26150 Progress: 30/50
+2023-04-01 03:43:37 [DEBUG] PID 26151 Progress: 30/50
+2023-04-01 03:43:45 [DEBUG] PID 26150 Progress: 35/50
+2023-04-01 03:43:46 [DEBUG] PID 26151 Progress: 35/50
+2023-04-01 03:43:53 [DEBUG] PID 26150 Progress: 40/50
+2023-04-01 03:43:54 [DEBUG] PID 26151 Progress: 40/50
+2023-04-01 03:44:01 [DEBUG] PID 26150 Progress: 45/50
+2023-04-01 03:44:02 [DEBUG] PID 26151 Progress: 45/50
+2023-04-01 03:44:09 [INFO] SAME-ECOS training data production finished
+2023-04-01 03:44:09 [INFO] data keys: dict_keys(['T2_location', 'T2_amplitude', 'decay_curve', 'decay_curve_with_noise', 'spectrum_nearest', 'spectrum_gaussian', 'num_T2_SNR_FA'])
+2023-04-01 03:44:09 [INFO] Elapsed time: 84.02 seconds
+2023-04-01 03:44:09 [INFO] SAME-ECOS training data are saved in 'data/same_ecos/se_hyperfine_120echo.pickle'
+
+2023-04-01 03:45:01 [INFO] Experiment name: SAME-ECOS training data for 64mT hyperfine MWI data
+2023-04-01 03:45:01 [INFO] Experiment begins at 2023/04/01 03:45:01
+2023-04-01 03:45:01 [INFO] Config file contents:
+2023-04-01 03:45:01 [INFO] name: SAME-ECOS training data for 64mT hyperfine MWI data
+2023-04-01 03:45:01 [INFO] realizations: 100
+2023-04-01 03:45:01 [INFO] ncores: 2
+2023-04-01 03:45:01 [INFO] snr_min: 50
+2023-04-01 03:45:01 [INFO] snr_max: 500
+2023-04-01 03:45:01 [INFO] etl: 120
+2023-04-01 03:45:01 [INFO] delta_te: 4.1
+2023-04-01 03:45:01 [INFO] T1_fix: 2000
+2023-04-01 03:45:01 [INFO] num_t2_basis: 40
+2023-04-01 03:45:01 [INFO] FA_min: 50
+2023-04-01 03:45:01 [INFO] T2_min: 5
+2023-04-01 03:45:01 [INFO] T2_max: 1000
+2023-04-01 03:45:01 [INFO] gaussian_width: 1
+2023-04-01 03:45:01 [INFO] exclude_M_max: True
+2023-04-01 03:45:01 [INFO] save_path: data/same_ecos/se_hyperfine_120echo.pickle
+2023-04-01 03:45:01 [INFO] log_path: logs/same_ecos.log
+2023-04-01 03:45:01 [INFO] SAME-ECOS training data production in progress
+2023-04-01 03:45:04 [DEBUG] PID 26922 Progress: 0/50
+2023-04-01 03:45:04 [DEBUG] PID 26923 Progress: 0/50
+2023-04-01 03:45:13 [DEBUG] PID 26922 Progress: 5/50
+2023-04-01 03:45:13 [DEBUG] PID 26923 Progress: 5/50
+2023-04-01 03:45:21 [DEBUG] PID 26923 Progress: 10/50
+2023-04-01 03:45:21 [DEBUG] PID 26922 Progress: 10/50
+2023-04-01 03:45:30 [DEBUG] PID 26923 Progress: 15/50
+2023-04-01 03:45:30 [DEBUG] PID 26922 Progress: 15/50
+2023-04-01 03:45:37 [DEBUG] PID 26923 Progress: 20/50
+2023-04-01 03:45:38 [DEBUG] PID 26922 Progress: 20/50
+2023-04-01 03:45:43 [DEBUG] PID 26923 Progress: 25/50
+2023-04-01 03:45:43 [DEBUG] PID 26922 Progress: 25/50
+2023-04-01 03:45:53 [DEBUG] PID 26923 Progress: 30/50
+2023-04-01 03:45:53 [DEBUG] PID 26922 Progress: 30/50
+2023-04-01 03:46:01 [DEBUG] PID 26923 Progress: 35/50
+2023-04-01 03:46:01 [DEBUG] PID 26922 Progress: 35/50
+2023-04-01 03:46:08 [DEBUG] PID 26923 Progress: 40/50
+2023-04-01 03:46:09 [DEBUG] PID 26922 Progress: 40/50
+2023-04-01 03:46:15 [DEBUG] PID 26923 Progress: 45/50
+2023-04-01 03:46:16 [DEBUG] PID 26922 Progress: 45/50
+2023-04-01 03:46:23 [INFO] SAME-ECOS training data production finished
+2023-04-01 03:46:23 [INFO] data keys: dict_keys(['T2_location', 'T2_amplitude', 'decay_curve', 'decay_curve_with_noise', 'spectrum_nearest', 'spectrum_gaussian', 'num_T2_SNR_FA'])
+2023-04-01 03:46:23 [INFO] Elapsed time: 81.37 seconds
+2023-04-01 03:46:23 [INFO] SAME-ECOS training data are saved in 'data/same_ecos/se_hyperfine_120echo.pickle'
+
+2023-04-01 03:57:20 [INFO] Experiment name: SAME-ECOS training data for 64mT hyperfine MWI data
+2023-04-01 03:57:20 [INFO] Experiment begins at 2023/04/01 03:57:20
+2023-04-01 03:57:20 [INFO] Config file contents:
+2023-04-01 03:57:20 [INFO] name: SAME-ECOS training data for 64mT hyperfine MWI data
+2023-04-01 03:57:20 [INFO] realizations: 50000
+2023-04-01 03:57:20 [INFO] ncores: 2
+2023-04-01 03:57:20 [INFO] snr_min: 50
+2023-04-01 03:57:20 [INFO] snr_max: 500
+2023-04-01 03:57:20 [INFO] etl: 120
+2023-04-01 03:57:20 [INFO] delta_te: 4.1
+2023-04-01 03:57:20 [INFO] T1_fix: 2000
+2023-04-01 03:57:20 [INFO] num_t2_basis: 40
+2023-04-01 03:57:20 [INFO] FA_min: 50
+2023-04-01 03:57:20 [INFO] T2_min: 5
+2023-04-01 03:57:20 [INFO] T2_max: 1000
+2023-04-01 03:57:20 [INFO] gaussian_width: 1
+2023-04-01 03:57:20 [INFO] exclude_M_max: True
+2023-04-01 03:57:20 [INFO] save_path: data/same_ecos/se_hyperfine_120echo.pickle
+2023-04-01 03:57:20 [INFO] log_path: logs/same_ecos.log
+2023-04-01 03:57:20 [INFO] SAME-ECOS training data production in progress
+2023-04-01 03:57:21 [DEBUG] PID 30506 Progress: 0/25000
+2023-04-01 03:57:21 [DEBUG] PID 30505 Progress: 0/25000
+2023-04-01 05:03:02 [DEBUG] PID 30505 Progress: 2500/25000
+2023-04-01 05:03:23 [DEBUG] PID 30506 Progress: 2500/25000
+2023-04-01 06:08:37 [DEBUG] PID 30505 Progress: 5000/25000
+2023-04-01 06:08:52 [DEBUG] PID 30506 Progress: 5000/25000
+2023-04-01 07:13:59 [DEBUG] PID 30505 Progress: 7500/25000
+2023-04-01 07:14:33 [DEBUG] PID 30506 Progress: 7500/25000
+2023-04-01 08:18:19 [DEBUG] PID 30505 Progress: 10000/25000
+2023-04-01 08:19:05 [DEBUG] PID 30506 Progress: 10000/25000
+2023-04-01 09:24:30 [DEBUG] PID 30505 Progress: 12500/25000
+2023-04-01 09:25:23 [DEBUG] PID 30506 Progress: 12500/25000
+2023-04-01 10:29:34 [DEBUG] PID 30505 Progress: 15000/25000
+2023-04-01 10:30:50 [DEBUG] PID 30506 Progress: 15000/25000
+2023-04-01 11:33:39 [DEBUG] PID 30505 Progress: 17500/25000
+2023-04-01 11:35:06 [DEBUG] PID 30506 Progress: 17500/25000
+2023-04-01 12:37:52 [DEBUG] PID 30505 Progress: 20000/25000
+2023-04-01 12:39:26 [DEBUG] PID 30506 Progress: 20000/25000
+2023-04-01 13:42:14 [DEBUG] PID 30505 Progress: 22500/25000
+2023-04-01 13:44:19 [DEBUG] PID 30506 Progress: 22500/25000
+2023-04-01 14:48:34 [INFO] SAME-ECOS training data production finished
+2023-04-01 14:48:34 [INFO] data keys: dict_keys(['T2_location', 'T2_amplitude', 'decay_curve', 'decay_curve_with_noise', 'spectrum_nearest', 'spectrum_gaussian', 'num_T2_SNR_FA'])
+2023-04-01 14:48:34 [INFO] Elapsed time: 39074.06 seconds
+2023-04-01 14:48:34 [INFO] SAME-ECOS training data are saved in 'data/same_ecos/se_hyperfine_120echo.pickle'
+

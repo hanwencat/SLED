@@ -1,0 +1,13 @@
+# parameters to produce digital phantom
+name: produce 3-pool phantom (32 echo, 10ms echo spacing) via EPG algorithm
+dims: [100, 100, 100]
+mwf_range: [0, 0.5]
+fa_range: [50, 180]
+snr_range: [50, 500]
+fwf: 0.05 # free water fraction
+t2s: [0.01, 0.05, 0.25]
+t1s: [2, 2, 2]
+nte: 32
+delta_te: 0.01
+log_path: sled_mese/logs/phantom.log
+save_path: sled_mese/data/phantom/pt_epg_3pool_32echo.pickle

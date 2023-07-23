@@ -1,0 +1,17 @@
+# same_ecos parameters to produce training data for 3T GRASE data from UBC
+name: SAME-ECOS training data for 3T GRASE data
+realizations: 1000000
+ncores: 2
+snr_min: 50
+snr_max: 500
+etl: 48 
+delta_te: 8
+T1_fix: 2000
+num_t2_basis: 40
+FA_min: 50
+T2_min: 5
+T2_max: 1000
+gaussian_width: 1
+exclude_M_max: True
+save_path: sled_mese/data/same_ecos/se_grase_48echo.pickle
+log_path: sled_mese/logs/same_ecos.log
