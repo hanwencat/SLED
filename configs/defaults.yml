@@ -3,6 +3,7 @@ io: &paths
   data_path: /export01/data/Hanwen/data/mgre_data/WT_F_21/niftis/mgre/mgre_mag_mi_phs_corrected.nii
   mask_path: /export01/data/Hanwen/data/mgre_data/WT_F_21/niftis/mgre/mask.nii
   save_path: results/sled/WT_F_21_mgre_
+  descrip: 3-pool fitting with default configs # add descriptive text to header (max 80 chars)
   save_model_path: &model_path models/best_epoch_WT_F_21.h5
 
 preprocessing:
@@ -78,7 +79,7 @@ training:
 
   # model training
   shuffle: True
-  epochs: 200
+  epochs: 20
   batch_size: 512
   verbose: 1 
 

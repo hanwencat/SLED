@@ -48,6 +48,7 @@ def main(config):
     # save parameter maps to nifti files and dump the configs as a nifti extension (code=6 specifies a comment as a convention) 
     extension = nib.nifti1.Nifti1Extension(6, yaml.dump(config).encode()) # https://nipy.org/nibabel/devel/biaps/biap_0003.html
     header.extensions.append(extension)
+    header['descrip']=config['io']['descrip']
     nib.save(nib.Nifti1Image(t2s_map, affine, header), config['io']['save_path']+'t2s.nii.gz')
     nib.save(nib.Nifti1Image(amps_map, affine, header), config['io']['save_path']+'amps.nii.gz')
     nib.save(nib.Nifti1Image(mwf_map, affine, header), config['io']['save_path']+'mwf.nii.gz')
