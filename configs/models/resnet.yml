@@ -1,0 +1,39 @@
+name: resnet model
+
+# model architecture 
+input_shape: 32
+hidden_layers_head: [128]
+num_res_blocks: 2
+res_block_size: [128, 128, 128]
+hidden_layers_tail: [128]
+num_classes: 1
+
+# model compile
+activation: relu
+activation_last_layer: relu
+loss_function: mse #categorical_crossentropy
+optimizer:
+  name: adam
+  lr: 0.001
+  clipnorm: Null
+  clipvalue: Null
+metric: mae
+
+# model training
+shuffle: True
+epochs: 100
+batch_size: 512
+verbose: 2 
+
+# callbacks
+TensorBoard_log_path: logs
+TensorBoard_hist_freq: 1
+EarlyStopping_monitor: loss
+EarlyStopping_patience: 15
+ReduceLROnPlateau_monitor: loss
+ReduceLROnPlateau_factor: 0.5
+ReduceLROnPlateau_patience: 3
+
+# paths
+log_path: logs/training.log
+save_path: models/pretrain_resnet.h5

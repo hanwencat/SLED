@@ -1,0 +1,78 @@
+name: encoder model
+input_shape: 32
+range_t2_my: [0.01, 0.04]
+range_t2_ie: [0.06, 0.12]
+range_t2_fr: [0.2, 0.3]
+
+
+# model architecture
+base_nn_t2s:
+  name: mlp 
+
+base_nn_amps:
+  name: mlp
+
+base_mlp_t2s:
+  input_shape: 32
+  hidden_layers: [128, 256, 128]
+  num_classes: 1
+  activation: relu
+  activation_last_layer: relu
+
+base_mlp_amps:
+  input_shape: 32
+  hidden_layers: [128, 256, 128]
+  num_classes: 3
+  activation: relu
+  activation_last_layer: relu
+
+base_resnet_t2s: 
+  input_shape: 32
+  hidden_layers_head: [128]
+  num_res_blocks: 2
+  res_block_size: [128, 128, 128]
+  hidden_layers_tail: [128]
+  num_classes: 1
+  activation: relu
+  activation_last_layer: relu
+
+base_resnet_amps: 
+  input_shape: 32
+  hidden_layers_head: [128]
+  num_res_blocks: 2
+  res_block_size: [128, 128, 128]
+  hidden_layers_tail: [128]
+  num_classes: 3
+  activation: relu
+  activation_last_layer: relu
+
+
+# model compile
+# activation: relu
+# activation_last_layer: relu
+loss_function: mse #categorical_crossentropy
+optimizer:
+  name: adam
+  lr: 0.001
+  clipnorm: Null
+  clipvalue: Null
+metric: mae
+
+# model training
+shuffle: True
+epochs: 100
+batch_size: 512
+verbose: 2 
+
+# callbacks
+TensorBoard_log_path: logs
+TensorBoard_hist_freq: 1
+EarlyStopping_monitor: loss
+EarlyStopping_patience: 15
+ReduceLROnPlateau_monitor: loss
+ReduceLROnPlateau_factor: 0.5
+ReduceLROnPlateau_patience: 3
+
+# paths
+log_path: logs/training.log
+save_path: models/pretrain_resnet.h5

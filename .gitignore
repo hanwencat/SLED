@@ -1,9 +1,8 @@
-data/
-logs/
-#src/__pycache__
-__pycache__/
-models/
-notebooks/
-results/
+/data
+/logs
+# __pycache__/
+/models
+/notebooks
+/results
 .ipynb_checkpoints/
 .vscode
