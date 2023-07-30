@@ -7229,3 +7229,51 @@
 2023-07-27 05:14:19 [INFO] Training finished, elapsed time: 54.76 seconds
 2023-07-27 05:14:19 [INFO] model is saved in 'models/best_epoch_WT_F_21.h5'
 
+2023-07-30 15:36:27 [INFO] Experiment for subject: WF_T_21 begins at 2023/07/30 15:36:27
+2023-07-30 15:36:27 [INFO] Model configurations:
+2023-07-30 15:36:27 [INFO] name: WF_T_21
+2023-07-30 15:36:27 [INFO] model_structure: {'encoder': {'name': 'encoder model', 'input_shape': 24, 'latent_shape': 3, 'range_t2_my': [0.003, 0.015], 'range_t2_ie': [0.045, 0.07], 'range_t2_fr': [0.2, 0.3], 'base_nn_t2s': {'name': 'mlp'}, 'base_nn_amps': {'name': 'mlp'}, 'base_mlp_t2': {'hidden_layers': [256, 128], 'num_classes': 1, 'activation': 'sigmoid', 'activation_last_layer': 'sigmoid'}, 'base_mlp_amps': {'hidden_layers': [256, 256], 'num_classes': 3, 'activation': 'sigmoid', 'activation_last_layer': 'sigmoid'}, 'base_resnet_t2': {'hidden_layers_head': [128], 'num_res_blocks': 2, 'res_block_size': [256, 256], 'hidden_layers_tail': [128], 'num_classes': 1, 'activation': 'sigmoid', 'activation_last_layer': 'sigmoid'}, 'base_resnet_amps': {'hidden_layers_head': [128], 'num_res_blocks': 2, 'res_block_size': [256, 256], 'hidden_layers_tail': [128], 'num_classes': 3, 'activation': 'sigmoid', 'activation_last_layer': 'sigmoid'}}, 'decoder': {'name': 'decoder_exp', 'num_classes': 3, 'nte': 24, 'delta_te': 0.002, 'snr_range': [50, 300]}}
+2023-07-30 15:36:27 [INFO] loss_function: mse
+2023-07-30 15:36:27 [INFO] optimizer: {'name': 'adamax', 'lr': 0.001, 'clipnorm': None, 'clipvalue': None}
+2023-07-30 15:36:27 [INFO] metric: mae
+2023-07-30 15:36:27 [INFO] shuffle: True
+2023-07-30 15:36:27 [INFO] epochs: 20
+2023-07-30 15:36:27 [INFO] batch_size: 512
+2023-07-30 15:36:27 [INFO] verbose: 1
+2023-07-30 15:36:27 [INFO] TensorBoard_log_path: logs
+2023-07-30 15:36:27 [INFO] TensorBoard_hist_freq: 1
+2023-07-30 15:36:27 [INFO] EarlyStopping_monitor: loss
+2023-07-30 15:36:27 [INFO] EarlyStopping_patience: 15
+2023-07-30 15:36:27 [INFO] ReduceLROnPlateau_monitor: loss
+2023-07-30 15:36:27 [INFO] ReduceLROnPlateau_factor: 0.5
+2023-07-30 15:36:27 [INFO] ReduceLROnPlateau_patience: 3
+2023-07-30 15:36:27 [INFO] Checkpoint_monitor: loss
+2023-07-30 15:36:27 [INFO] save_best_only: True
+2023-07-30 15:36:27 [INFO] io: {'subject_id': 'WF_T_21', 'data_path': '/export01/data/Hanwen/data/mgre_data/WT_F_21/niftis/mgre/mgre_mag_mi_phs_corrected.nii', 'mask_path': '/export01/data/Hanwen/data/mgre_data/WT_F_21/niftis/mgre/mask.nii', 'save_path': 'results/sled/WT_F_21_mgre_', 'descrip': '3-pool fitting with default configs', 'save_model_path': 'models/best_epoch_WT_F_21.h5'}
+2023-07-30 15:36:27 [INFO] log_path: logs/training.log
+2023-07-30 15:36:27 [INFO] save_model_path: models/best_epoch_WT_F_21.h5
+2023-07-30 15:36:27 [INFO] Training in progress
+2023-07-30 15:36:28 [WARNING] Callback method `on_train_batch_end` is slow compared to the batch time (batch time: 0.0038s vs `on_train_batch_end` time: 0.0052s). Check your callbacks.
+2023-07-30 15:36:31 [DEBUG] Epoch 1 - {'loss': '0.106860', 'mae': '0.231062', 'lr': '0.001000'} 
+2023-07-30 15:36:34 [DEBUG] Epoch 2 - {'loss': '0.040178', 'mae': '0.151858', 'lr': '0.001000'} 
+2023-07-30 15:36:36 [DEBUG] Epoch 3 - {'loss': '0.032266', 'mae': '0.137370', 'lr': '0.001000'} 
+2023-07-30 15:36:39 [DEBUG] Epoch 4 - {'loss': '0.029892', 'mae': '0.132582', 'lr': '0.001000'} 
+2023-07-30 15:36:42 [DEBUG] Epoch 5 - {'loss': '0.028425', 'mae': '0.129557', 'lr': '0.001000'} 
+2023-07-30 15:36:44 [DEBUG] Epoch 6 - {'loss': '0.027513', 'mae': '0.127663', 'lr': '0.001000'} 
+2023-07-30 15:36:47 [DEBUG] Epoch 7 - {'loss': '0.027021', 'mae': '0.126666', 'lr': '0.001000'} 
+2023-07-30 15:36:50 [DEBUG] Epoch 8 - {'loss': '0.026588', 'mae': '0.125739', 'lr': '0.001000'} 
+2023-07-30 15:36:52 [DEBUG] Epoch 9 - {'loss': '0.026260', 'mae': '0.125038', 'lr': '0.001000'} 
+2023-07-30 15:36:55 [DEBUG] Epoch 10 - {'loss': '0.026037', 'mae': '0.124561', 'lr': '0.001000'} 
+2023-07-30 15:36:58 [DEBUG] Epoch 11 - {'loss': '0.025796', 'mae': '0.123993', 'lr': '0.001000'} 
+2023-07-30 15:37:00 [DEBUG] Epoch 12 - {'loss': '0.025632', 'mae': '0.123623', 'lr': '0.001000'} 
+2023-07-30 15:37:03 [DEBUG] Epoch 13 - {'loss': '0.025509', 'mae': '0.123329', 'lr': '0.001000'} 
+2023-07-30 15:37:06 [DEBUG] Epoch 14 - {'loss': '0.025382', 'mae': '0.123031', 'lr': '0.001000'} 
+2023-07-30 15:37:08 [DEBUG] Epoch 15 - {'loss': '0.025319', 'mae': '0.122878', 'lr': '0.001000'} 
+2023-07-30 15:37:11 [DEBUG] Epoch 16 - {'loss': '0.025229', 'mae': '0.122678', 'lr': '0.001000'} 
+2023-07-30 15:37:14 [DEBUG] Epoch 17 - {'loss': '0.025167', 'mae': '0.122538', 'lr': '0.001000'} 
+2023-07-30 15:37:16 [DEBUG] Epoch 18 - {'loss': '0.025119', 'mae': '0.122437', 'lr': '0.001000'} 
+2023-07-30 15:37:19 [DEBUG] Epoch 19 - {'loss': '0.025068', 'mae': '0.122317', 'lr': '0.001000'} 
+2023-07-30 15:37:22 [DEBUG] Epoch 20 - {'loss': '0.025016', 'mae': '0.122199', 'lr': '0.001000'} 
+2023-07-30 15:37:22 [INFO] Training finished, elapsed time: 54.29 seconds
+2023-07-30 15:37:22 [INFO] model is saved in 'models/best_epoch_WT_F_21.h5'
+

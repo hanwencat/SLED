@@ -1,9 +1,9 @@
 data/
+logs/
 #src/__pycache__
 __pycache__/
 models/
 notebooks/
 results/
-logs/train
 .ipynb_checkpoints/
 .vscode
