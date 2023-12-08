@@ -1,8 +1,12 @@
-/data
-/logs
-__pycache__/
-/models
+/data/*
+!data/.gitkeep
+/logs/*
+!logs/.gitkeep
+/models/*
+/models/.gitkeep
 /notebooks
-/results
+/results/*
+!results/.gitkeep
+__pycache__/
 .ipynb_checkpoints/
 .vscode

@@ -3,15 +3,11 @@ import nibabel as nib
 import matplotlib.pyplot as plt
 
 
-def mask_4D_data(data_4D, mask_3D, nan=True):
+def mask_4D_data(data_4D, mask_3D):
     """apply 3D mask to 4D data"""
     
     # Ensure the data and mask have the same shape in the first three dimensions
     assert data_4D.shape[:-1] == mask_3D.shape, "data and mask shapes do not match in first three dimensions."
-
-    # Set 3D mask to NaN wherever it is 0
-    if nan == True:
-        mask_3D[mask_3D == 0] = np.nan
 
     # Use NumPy broadcasting to apply the mask to the last dimension of the data
     data_4D_masked = data_4D * mask_3D[..., np.newaxis]

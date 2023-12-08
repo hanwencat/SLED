@@ -1,18 +1,18 @@
 io: &paths
-  subject_id: &id WT_F_21
-  data_path: data/mgre_data.nii
-  mask_path: data/mgre_mask.nii # if no mask, set to Null or False. However, mask is recommended for better performance
-  save_path: results/WT_F_21_
+  subject_id: &id hf_test01
+  data_path: data/hf_mwi_data.nii.gz
+  mask_path: data/hf_mwi_mask.nii.gz # if no mask, set to Null or False. However, mask is recommended for better performance
+  save_path: results/hf_test01_
   descrip: 3-pool fitting with default configs # add descriptive text to header (max 80 chars)
-  save_model_path: &model_path models/best_epoch_WT_F_21.h5
+  save_model_path: &model_path models/best_epoch_hf_test01.h5
 
 data_fitting:
-  number_of_echoes: &num_te 24
-  echo_spacing: &delta_te 0.002
+  number_of_echoes: &num_te 120
+  echo_spacing: &delta_te 0.0041
   number_of_pools: &num_pool 3
-  range_t2_my: &t2s_my [0.003, 0.015]
-  range_t2_ie: &t2s_ie [0.045, 0.07]
-  range_t2_fr: &t2s_fr [0.2, 0.3]
+  range_t2_my: &t2s_my [0.01, 0.04]
+  range_t2_ie: &t2s_ie [0.1, 0.2]
+  range_t2_fr: &t2s_fr [0.5, 1]
   mwf_cutoff: &my_t2_cutoff 0.04
 
 preprocessing:
@@ -88,7 +88,7 @@ training:
 
   # model training
   shuffle: True
-  epochs: 20
+  epochs: 50
   batch_size: 512
   verbose: 1 
 

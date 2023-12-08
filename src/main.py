@@ -15,7 +15,11 @@ def main(config):
     data_4d = scan.get_fdata()
     affine = scan.affine
     header = scan.header
-    mask_3d = nib.load(config['io']['mask_path']).get_fdata()
+    # query the config file, if there is a mask_path, then load the mask, otherwise, use the whole brain
+    if config['io']['mask_path'] == None or False:
+        mask_3d = np.ones(data_4d.shape[0:3])
+    else:
+        mask_3d = nib.load(config['io']['mask_path']).get_fdata()
 
     # data preprocessing
     if iu.check_binary(mask_3d) != True: # binarize the mask if it's not binary
@@ -59,7 +63,7 @@ def main(config):
 
 if __name__ == '__main__':
 
-    with open('configs/defaults.yml') as f:
+    with open('configs/hyperfine.yml') as f:
         config = yaml.safe_load(f)
     
     main(config)
