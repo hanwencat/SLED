@@ -22,7 +22,7 @@ Self-Labelled Encoder-Decoder (SLED) for myelin water imaging data analysis
 ## Run SLED fitting
 - clone this repo to your local computer
     ```
-    git clone git@github.com:hanwencat/SLED_mese.git
+    git clone git@github.com:hanwencat/SLED.git
     ```
 - nevigate to the root of this repo
 - use conda to create a virtual environment for the SLED fitting
