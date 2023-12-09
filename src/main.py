@@ -45,7 +45,7 @@ def main(config):
         sled.load_weights(config['training']['save_model_path'])
 
     # extract latent parameter maps after training
-    t2s_map, amps_map = apply_encoder(encoder, data_masked)
+    t2s_map, amps_map = apply_encoder(encoder, data_4d)
     amps_map = iu.amps_sum2one(amps_map)
     mwf_map = iu.mwf_production(t2s_map, amps_map, config['postprocessing']['mwf_cutoff'])
 

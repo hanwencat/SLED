@@ -6,7 +6,7 @@ io: &paths
   descrip: 3-pool fitting with default configs # add descriptive text to header (max 80 chars)
   save_model_path: &model_path models/best_epoch_WT_F_21.h5
 
-data_fitting:
+fitting:
   number_of_echoes: &num_te 24
   echo_spacing: &delta_te 0.002
   number_of_pools: &num_pool 3
