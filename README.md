@@ -22,7 +22,7 @@
 ## Run SLED fitting
 - Clone this repo to your local computer
     ```
-    git clone git@github.com:hanwencat/SLED.git
+    git clone https://github.com/hanwencat/SLED.git
     ```
 - Nevigate to the root of this repo (should be on the `exp_3pool` branch by default, not the `master` branch)
 - Use conda to create a virtual environment for the SLED fitting
