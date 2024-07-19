@@ -9,4 +9,6 @@ dependencies:
   - matplotlib
   - tensorflow
   - pyyaml
-prefix: /export01/data/Hanwen/software/anaconda3/envs/sled
+
+# specify the path where the env should be installed
+# prefix: /export01/data/Hanwen/software/anaconda3/envs/sled
