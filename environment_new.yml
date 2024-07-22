@@ -138,4 +138,6 @@ dependencies:
   - zipp=3.11.0=py38hca03da5_0
   - zlib=1.2.13=h5a0b063_0
   - zstd=1.5.5=hd90d995_0
-prefix: /Users/hanwenliu/anaconda3/envs/sled
+
+# specify the path where the env should be installed
+# prefix: /Users/hanwenliu/anaconda3/envs/sled
