@@ -11,7 +11,7 @@
 
 ## File structure in this repo
 - *configs*: configuration files for all the fitting initialization parameters
-- *data*: data to be fitted are stored here by default (change the path in config file if the data are located elsewhere)
+- *data*: imaging data in nii format are stored here by default (change the path in config file if the data are located elsewhere)
 - *models*: trained model (the best epoch) is saved here by default
 - *results*: parameter maps are saved here by default
 - *src*: source code is placed here
