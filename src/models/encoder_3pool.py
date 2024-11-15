@@ -5,11 +5,10 @@ import yaml
 import numpy as np
 
 
-def build_encoder_3pool(config, amps_scaling):
+def build_encoder_3pool(config, amps_scaling=1):
     
-    # Set up the model architecture
-    inputs = Input(shape=(config['input_shape'],))
-    x = inputs
+    # Set up the model input
+    x = Input(shape=(config['input_shape'],))
 
     # use 3 NNs to estimate 3 t2 times
     if config['base_nn_t2s']['name'] == 'mlp':
