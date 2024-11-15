@@ -29,9 +29,11 @@ def main(config):
     data_flat, data_flat_norm = iu.flatten_filter_normalize(data_masked)
     if config['preprocessing']['normalization'] == True:
         data_input = data_flat_norm
+        data_4d = data_4d / data_4d[..., 0:1] # normalize the 4D data
+        amps_scaling = 1
     else:
         data_input = data_flat
-    amps_scaling = np.quantile(data_input, config['preprocessing']['scaling_quantile'], axis=0)[0] # for scaling the amps NN in the encoder
+        amps_scaling = np.quantile(data_input, config['preprocessing']['scaling_quantile'], axis=0)[0] # for scaling the amps NN in the encoder
 
     # build SLED
     encoder = build_encoder_3pool(config['model']['encoder'], amps_scaling)
