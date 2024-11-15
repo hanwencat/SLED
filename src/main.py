@@ -22,6 +22,7 @@ def main(config):
         mask_3d = nib.load(config['io']['mask_path']).get_fdata()
 
     # data preprocessing
+    data_4d = data_4d[..., 0:config['fitting']['number_of_echoes']] # truncate later echoes if needed
     if iu.check_binary(mask_3d) != True: # binarize the mask if it's not binary
         mask_3d = iu.binarize(mask_3d, config['preprocessing']['mask_threshold'])
     data_masked = iu.mask_4D_data(data_4d, mask_3d)
