@@ -23,10 +23,11 @@ class decoder_exp(Layer):
     def __init__(self, config, **kwargs):
         super(decoder_exp, self).__init__(**kwargs)
         self.nte = config['nte']
+        self.first_te = config['first_te']
         self.delta_te = config['delta_te']
         self.te = np.linspace(
-            self.delta_te, 
-            self.nte*self.delta_te, 
+            self.first_te, 
+            self.first_te + (self.nte-1)*self.delta_te, 
             self.nte,
             dtype=np.float32,
             )
@@ -49,7 +50,7 @@ class decoder_exp(Layer):
 
 def signal_model_exp(args):
     """
-    signal model (arbitrary number of pools) for multi-echo gradient echo MWI data
+    signal model (arbitrary number of pools) for multi-echo MWI data
     """
     # load and vectorize parameters
     t2s, amps, te, snr_range = args
@@ -62,7 +63,7 @@ def signal_model_exp(args):
     signal = tf.squeeze(tf.linalg.matmul(kernel_matrix, amps))
     
     # add noise according to the snr range
-    if snr_range == ():
+    if snr_range == None:
         return signal
     else:
         # random noise
