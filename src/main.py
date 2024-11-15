@@ -2,6 +2,9 @@ import nibabel as nib
 import yaml
 import utility.image_util as iu
 from models.encoder_3pool import build_encoder_3pool, apply_encoder
+# from models.encoder_2pool import build_encoder_2pool, apply_encoder
+# from models.encoder_3pool_rl import build_encoder_3pool_rl, apply_encoder
+# from models.encoder_mpool import build_encoder_mpool, apply_encoder
 from models.decoder_exp import build_decoder_exp
 from models.sled import build_sled
 from models.train import train_model
@@ -37,13 +40,16 @@ def main(config):
 
     # build SLED
     encoder = build_encoder_3pool(config['model']['encoder'], amps_scaling)
+    # encoder = build_encoder_2pool(config['model']['encoder'], amps_scaling)
+    # encoder = build_encoder_3pool_rl(config['model']['encoder'], amps_scaling)
+    # encoder = build_encoder_mpool(config['model']['encoder'], amps_scaling)
     decoder = build_decoder_exp(config['model']['decoder'])
     sled = build_sled(encoder=encoder, decoder=decoder)
     sled.summary()
 
     # train SLED with preprocessed data
     train_model(sled, config['training'], data_input, data_input)
-    # TODO load the best model (need to be confirmed)
+    # load the best model (need to be confirmed)
     if config['training']['save_best_only']:
         sled.load_weights(config['training']['save_model_path'])
 
@@ -51,6 +57,7 @@ def main(config):
     t2s_map, amps_map = apply_encoder(encoder, data_4d)
     amps_map = iu.amps_sum2one(amps_map)
     mwf_map = iu.mwf_production(t2s_map, amps_map, config['postprocessing']['mwf_cutoff'])
+    # mwf_map = mwf_map * mask_3d  # mask the mwf map
 
     # save parameter maps to nifti files and dump the configs as a nifti extension (code=6 specifies a comment as a convention) 
     extension = nib.nifti1.Nifti1Extension(6, yaml.dump(config).encode()) # https://nipy.org/nibabel/devel/biaps/biap_0003.html
@@ -66,7 +73,8 @@ def main(config):
 
 if __name__ == '__main__':
 
-    with open('configs/hyperfine.yml') as f:
+    with open('configs/hyperfine_80echo.yaml') as f:
+    # with open('configs/mpool.yaml') as f:
         config = yaml.safe_load(f)
     
     main(config)
