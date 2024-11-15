@@ -1,0 +1,92 @@
+io: &paths
+  subject_id: &id control_test_corregistered
+  data_path: data/new_data/CALIPR_HC/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808.user_rrdf_20241011_093250_calipr_recon_all.nii
+  mask_path: data/new_data/CALIPR_HC/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808.user_rrdf_20241011_093250_calipr_recon_all_mask.nii.gz # if no mask, set to Null or False. However, mask is recommended for better performance
+  save_path: results/new_data/rep1_mpool_
+  descrip: non-parameteric (many pool) fitting # add descriptive text to header (max 80 chars)
+  save_model_path: &model_path models/rep1_mpool.h5
+
+fitting:
+  number_of_echoes: &num_te 80
+  echo_spacing: &delta_te 0.00431
+  number_of_pools: &num_pool 40
+  t2s_range: &t2s_range [0.01, 2]
+  mwf_cutoff: &my_t2_cutoff 0.04
+
+preprocessing:
+  mask_threshold: 0.5
+  normalization: False
+  scaling_quantile: 0.99 # to calculate scaling factor and exclude outliers
+
+model: &structure
+  encoder:
+    name: encoder model (many pool)
+    input_shape: *num_te
+    latent_shape: *num_pool
+    t2s_range: *t2s_range
+
+    # encoder architecture
+    base_nn_amps:
+      name: mlp # selections = [mlp, resnet]
+
+    base_mlp_amps:
+      hidden_layers: [256, 256]
+      num_classes: *num_pool
+      activation: relu
+      activation_last_layer: softmax
+
+    base_resnet_amps: 
+      hidden_layers_head: [128]
+      num_res_blocks: 2
+      res_block_size: [256, 256]
+      hidden_layers_tail: [128]
+      num_classes: *num_pool
+      activation: sigmoid
+      activation_last_layer: softmax
+    
+  decoder:
+    name: decoder_exp
+    num_classes: *num_pool
+    nte: *num_te
+    delta_te: *delta_te
+    snr_range: [50, 200] # Null
+
+
+training:
+  # model compile
+  name: *id
+  model_structure: *structure 
+  loss_function: mse # categorical_crossentropy, mse
+  optimizer:
+    name: adamax
+    lr: 0.001
+    clipnorm: Null
+    clipvalue: Null
+  metric: mae
+
+  # model training
+  shuffle: True
+  epochs: 50
+  batch_size: 512
+  verbose: 1 
+
+  # callbacks
+  TensorBoard_log_path: logs
+  TensorBoard_hist_freq: 1
+  EarlyStopping_monitor: loss
+  EarlyStopping_patience: 15
+  ReduceLROnPlateau_monitor: loss
+  ReduceLROnPlateau_factor: 0.5
+  ReduceLROnPlateau_patience: 3
+  Checkpoint_monitor: loss
+  save_best_only: True
+
+  # paths
+  io: *paths
+  log_path: logs/training.log
+  save_model_path: *model_path
+
+
+postprocessing:
+  mwf_cutoff: *my_t2_cutoff
+

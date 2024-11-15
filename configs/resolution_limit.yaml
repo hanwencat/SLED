@@ -1,0 +1,117 @@
+io: &paths
+  subject_id: &id control_rl_01
+  # data_path: data/real/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808.user_rrdf_20240821_115107_PCcalipr_recon_all.nii
+  data_path: data/FOV_large/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808_recon_all.nii.gz
+  mask_path: data/FOV_large/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808_recon_mask.nii.gz # if no mask, set to Null or False. However, mask is recommended for better performance
+  save_path: results/FOV_large/rl_3pool_
+  descrip: 3-pool with resolution limit # add descriptive text to header (max 80 chars)
+  save_model_path: &model_path models/rl_3pool.h5
+
+fitting:
+  number_of_echoes: &num_te 80
+  echo_spacing: &delta_te 0.00431
+  number_of_pools: &num_pool 3
+  range_t2_my: &t2s_my [0.01, 0.04]
+  # range_t2_ie: &t2s_ie [0.1, 0.25]
+  # range_t2_fr: &t2s_fr [1, 2.5]
+  resolution_limit: &rl 3.0
+  mwf_cutoff: &my_t2_cutoff 0.04
+
+preprocessing:
+  mask_threshold: 0.5
+  normalization: False
+  scaling_quantile: 0.99 # to calculate scaling factor and exclude outliers
+
+model: &structure
+  encoder:
+    name: encoder model
+    input_shape: *num_te
+    latent_shape: *num_pool
+    range_t2_my: *t2s_my
+    # range_t2_ie: *t2s_ie
+    # range_t2_fr: *t2s_fr
+    resolution_limit: *rl
+
+    # encoder architecture
+    base_nn_t2s:
+      name: mlp # selections = [mlp, resnet]
+
+    base_nn_amps:
+      name: mlp # selections = [mlp, resnet]
+
+    base_mlp_t2:
+      hidden_layers: [256, 128]
+      num_classes: 1
+      activation: sigmoid
+      activation_last_layer: sigmoid
+
+    base_mlp_amps:
+      hidden_layers: [256, 256]
+      num_classes: *num_pool
+      activation: sigmoid
+      activation_last_layer: sigmoid
+
+    base_resnet_t2: 
+      hidden_layers_head: [128]
+      num_res_blocks: 2
+      res_block_size: [256, 256]
+      hidden_layers_tail: [128]
+      num_classes: 1
+      activation: sigmoid
+      activation_last_layer: sigmoid
+
+    base_resnet_amps: 
+      hidden_layers_head: [128]
+      num_res_blocks: 2
+      res_block_size: [256, 256]
+      hidden_layers_tail: [128]
+      num_classes: *num_pool
+      activation: sigmoid
+      activation_last_layer: sigmoid
+    
+  decoder:
+    name: decoder_exp
+    num_classes: *num_pool
+    nte: *num_te
+    delta_te: *delta_te
+    snr_range: Null # [50, 300]
+
+
+training:
+  # model compile
+  name: *id
+  model_structure: *structure 
+  loss_function: mse #categorical_crossentropy
+  optimizer:
+    name: adamax
+    lr: 0.001
+    clipnorm: Null
+    clipvalue: Null
+  metric: mae
+
+  # model training
+  shuffle: True
+  epochs: 100
+  batch_size: 512
+  verbose: 1 
+
+  # callbacks
+  TensorBoard_log_path: logs
+  TensorBoard_hist_freq: 1
+  EarlyStopping_monitor: loss
+  EarlyStopping_patience: 15
+  ReduceLROnPlateau_monitor: loss
+  ReduceLROnPlateau_factor: 0.5
+  ReduceLROnPlateau_patience: 3
+  Checkpoint_monitor: loss
+  save_best_only: True
+
+  # paths
+  io: *paths
+  log_path: logs/training.log
+  save_model_path: *model_path
+
+
+postprocessing:
+  mwf_cutoff: *my_t2_cutoff
+

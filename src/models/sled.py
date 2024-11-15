@@ -25,15 +25,15 @@ def build_sled(encoder, decoder):
 
 
 if __name__ == "__main__":
-    from encoder_3pool import build_encoder_3pool
+    from encoder_mpool import build_encoder_mpool
     from decoder_exp import build_decoder_exp
 
     # Load hyperparameters from YAML config file
-    config_path = 'configs/defaults.yml' 
+    config_path = 'configs/mpool.yaml' 
     with open(config_path, 'r') as file:
         config = yaml.safe_load(file)
 
-    encoder = build_encoder_3pool(config['model']['encoder'])
+    encoder = build_encoder_mpool(config['model']['encoder'], amps_scaling=1)
     # encoder.summary()
 
     decoder = build_decoder_exp(config['model']['decoder'])
