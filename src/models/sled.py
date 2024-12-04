@@ -16,10 +16,14 @@ def build_sled(encoder, decoder):
 
     # Define the inputs and outputs of the model
     input = encoder.inputs
-    output = decoder(encoder.outputs)
-
+    t2s, amps = encoder.output['t2s'], encoder.output['amps']
+    output = decoder([t2s, amps])
     # Create a Keras model that connects the encoder and decoder
-    sled = Model(inputs=input, outputs=output, name='SLED')
+    sled = Model(
+        inputs=input, 
+        outputs={'fitted_signals':output, 't2s':t2s, 'amps':amps}, 
+        name='SLED',
+        )
 
     return sled
 
