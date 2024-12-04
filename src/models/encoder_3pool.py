@@ -1,6 +1,6 @@
 import tensorflow as tf
 import keras
-from keras.layers import Dense, BatchNormalization, Activation, Add, Input
+from keras.layers import Dense, BatchNormalization, Activation, Add, Input, Lambda
 import yaml
 import numpy as np
 
@@ -26,30 +26,29 @@ def build_encoder_3pool(config, amps_scaling=1):
     t2_ie = t2_ie * (config['range_t2_ie'][1] - config['range_t2_ie'][0]) + config['range_t2_ie'][0]
     t2_fr = t2_fr * (config['range_t2_fr'][1] - config['range_t2_fr'][0]) + config['range_t2_fr'][0]
 
-    # group 3 t2 times into t2s
-    t2s = tf.concat([t2_my, t2_ie, t2_fr], axis=1)
+    #  Group 3 t2 times into t2s and assign name
+    t2s = tf.keras.layers.Concatenate(name='t2s')([t2_my, t2_ie, t2_fr])
 
     # use 1 NN to estimate 3 amplitudes
     if config['base_nn_amps']['name'] == 'mlp':
-        amps = mlp(config['base_mlp_amps'], x) * amps_scaling
+        amps = mlp(config['base_mlp_amps'], x)
     if config['base_nn_amps']['name'] == 'resnet':
-        amps = resnet(config['base_resnet_amps'], x) * amps_scaling
-
-    # build the encoder model
-    encoder =  keras.Model(x, [t2s, amps], name = "encoder")
+        amps = resnet(config['base_resnet_amps'], x)
     
-    # name the two output layers
-    encoder.layers[-2]._name = 't2s'
-    encoder.layers[-1]._name = 'amps'
+    # Multiply by amps_scaling using a Lambda layer and assign name 'amps'
+    amps = Lambda(lambda x: x * amps_scaling, name='amps')(amps)
+    
+    # Build the encoder model with named outputs
+    encoder = keras.Model(inputs=x, outputs={'t2s': t2s, 'amps': amps}, name="encoder")
     
     return encoder
 
 
-def mlp(config, x):
+def mlp(config, x, name=None):
     # Set up the model architecture
     for layer_size in config['hidden_layers']:
         x = Dense(layer_size, activation=config['activation'])(x)
-    x = Dense(config['num_classes'], activation=config['activation_last_layer'])(x)
+    x = Dense(config['num_classes'], activation=config['activation_last_layer'], name=name)(x)
     
     return x
 
