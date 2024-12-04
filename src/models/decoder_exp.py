@@ -32,10 +32,11 @@ class decoder_exp(Layer):
             dtype=np.float32,
             )
         self.snr_range = config['snr_range']
+        self.normalization = config['normalization']
 
     def call(self, inputs):
         t2s, amps = inputs
-        args = [t2s, amps, self.te, self.snr_range]
+        args = [t2s, amps, self.te, self.snr_range, self.normalization]
         signal = signal_model_exp(args)
         return signal
 
@@ -53,18 +54,18 @@ def signal_model_exp(args):
     signal model (arbitrary number of pools) for multi-echo MWI data
     """
     # load and vectorize parameters
-    t2s, amps, te, snr_range = args
+    t2s, amps, te, snr_range, normalization = args
     t2s = t2s[:,tf.newaxis,:]
     amps = amps[:,:,tf.newaxis]
     te = te[tf.newaxis,:,tf.newaxis]
     
     # calculate the kernel matrix for the fitting and generate the signal 
     kernel_matrix = K.exp(-te/t2s)
-    signal = tf.squeeze(tf.linalg.matmul(kernel_matrix, amps))
+    signal = tf.squeeze(tf.linalg.matmul(kernel_matrix, amps), axis=-1)
     
     # add noise according to the snr range
     if snr_range == None:
-        return signal
+        signal = signal
     else:
         # random noise
         snr = tf.random.uniform((tf.shape(signal)[0],1), snr_range[0], snr_range[1]) 
@@ -74,9 +75,13 @@ def signal_model_exp(args):
         variance = scale_factor*1/(snr * np.sqrt(np.pi/2))
         noise_real = tf.random.normal(tf.shape(signal), 0, variance) # tf.shape used here to handle 'None' shape
         noise_img = tf.random.normal(tf.shape(signal), 0, variance)
-        noisy_signal = ((noise_real+signal)**2 + noise_img**2)**0.5 
-        
-        return noisy_signal 
+        signal = ((noise_real+signal)**2 + noise_img**2)**0.5 
+    
+    # normalize to the first echo    
+    if normalization == True:
+        signal = signal/signal[:,0][:,tf.newaxis]
+    
+    return signal 
 
 
 
