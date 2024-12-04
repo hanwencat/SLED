@@ -20,8 +20,18 @@ fitting:
 
 preprocessing:
   mask_threshold: 0.5
-  normalization: True # if True, loss function should be categorical_crossentropy (mse for False)
+  normalization: &normalization True # if True, loss function should be categorical_crossentropy (mse for False)
   scaling_quantile: 0.99 # to calculate scaling factor and exclude outliers
+
+pretrain:
+  number_of_echoes: *num_te 
+  first_echo_time: *1st_te
+  echo_spacing: *delta_te
+  number_of_pools: *num_pool
+  number_of_samples: 10000
+  t2_ranges: [*t2s_my, *t2s_ie, *t2s_fr]
+  amplitude_ranges: [[0,1],[0,1],[0,1]]
+  snr_range: &snr_range [30, 100]
 
 model: &structure
   encoder:
@@ -49,7 +59,7 @@ model: &structure
       hidden_layers: [256, 256]
       num_classes: *num_pool
       activation: sigmoid
-      activation_last_layer: sigmoid
+      activation_last_layer: softmax
 
     base_resnet_t2: 
       hidden_layers_head: [128]
@@ -76,7 +86,7 @@ model: &structure
     first_te: *1st_te
     delta_te: *delta_te
     snr_range: Null # [50, 300]
-
+    normalization: *normalization
 
 training:
   # model compile
