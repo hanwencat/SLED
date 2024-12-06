@@ -6,7 +6,9 @@ from models.encoder_3pool import build_encoder_3pool, apply_encoder
 # from models.encoder_3pool_rl import build_encoder_3pool_rl, apply_encoder
 # from models.encoder_mpool import build_encoder_mpool, apply_encoder
 from models.decoder_exp import build_decoder_exp
-from models.sled import build_sled
+from models.sled import build_sled, apply_sled_to_volume
+from pretrain.multi_exp_decay import generate_pretrain_data
+from pretrain.pretrain_sled import pretrain_sled
 from models.train import train_model
 import keras
 import numpy as np
@@ -47,16 +49,24 @@ def main(config):
     sled = build_sled(encoder=encoder, decoder=decoder)
     sled.summary()
 
+    # pretrain SLED with synthetic data
+    if config['pretrain']['pretrain_model'] == True:
+        # Generate pretrain synthetic data
+        decays, (amps, t2s) = generate_pretrain_data(config['pretrain'])
+        # pretrain SLED
+        pretrain_sled(config['pretrain'], sled, decays, amps, t2s)
+
     # train SLED with preprocessed data
-    train_model(sled, config['training'], data_input, data_input)
+    train_model(sled, config['training'], data_input, {'fitted_signals': data_input})
     # load the best model (need to be confirmed)
     if config['training']['save_best_only']:
         sled.load_weights(config['training']['save_model_path'])
 
     # extract latent parameter maps after training
-    t2s_map, amps_map = apply_encoder(encoder, data_4d)
+    fitted_signals_map, t2s_map, amps_map = apply_sled_to_volume(sled, data_4d)
     amps_map = iu.amps_sum2one(amps_map)
     mwf_map = iu.mwf_production(t2s_map, amps_map, config['postprocessing']['mwf_cutoff'])
+    residuals_map = fitted_signals_map - data_4d
     # mwf_map = mwf_map * mask_3d  # mask the mwf map
 
     # save parameter maps to nifti files and dump the configs as a nifti extension (code=6 specifies a comment as a convention) 
@@ -66,6 +76,8 @@ def main(config):
     nib.save(nib.Nifti1Image(t2s_map, affine, header), config['io']['save_path']+'t2s.nii.gz')
     nib.save(nib.Nifti1Image(amps_map, affine, header), config['io']['save_path']+'amps.nii.gz')
     nib.save(nib.Nifti1Image(mwf_map, affine, header), config['io']['save_path']+'mwf.nii.gz')
+    if config['postprocessing']['save_residuals']:
+        nib.save(nib.Nifti1Image(residuals_map, affine, header), config['io']['save_path']+'residuals.nii.gz')  
 
     # clear session
     keras.backend.clear_session()

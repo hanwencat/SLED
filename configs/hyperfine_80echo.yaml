@@ -9,29 +9,19 @@ io: &paths
   save_model_path: &model_path models/rep2_3pool.h5
 
 fitting:
-  number_of_echoes: &num_te 80 # if less than the number of echoes in the data, the first n echoes will be used
+  number_of_echoes: &num_te 80 # if less than the total number of echoes in the data, the first n echoes will be used
   first_echo_time: &1st_te 0.00431
   echo_spacing: &delta_te 0.00431
   number_of_pools: &num_pool 3
-  range_t2_my: &t2s_my [0.01, 0.02]
-  range_t2_ie: &t2s_ie [0.1, 0.2]
-  range_t2_fr: &t2s_fr [0.8, 2]
-  mwf_cutoff: &my_t2_cutoff 0.02
+  range_t2_my: &t2s_my [0.01, 0.03]
+  range_t2_ie: &t2s_ie [0.09, 0.15]
+  range_t2_fr: &t2s_fr [0.5, 1]
+  mwf_cutoff: &my_t2_cutoff 0.03
 
 preprocessing:
   mask_threshold: 0.5
   normalization: &normalization True # if True, loss function should be categorical_crossentropy (mse for False)
   scaling_quantile: 0.99 # to calculate scaling factor and exclude outliers
-
-pretrain:
-  number_of_echoes: *num_te 
-  first_echo_time: *1st_te
-  echo_spacing: *delta_te
-  number_of_pools: *num_pool
-  number_of_samples: 10000
-  t2_ranges: [*t2s_my, *t2s_ie, *t2s_fr]
-  amplitude_ranges: [[0,1],[0,1],[0,1]]
-  snr_range: &snr_range [30, 100]
 
 model: &structure
   encoder:
@@ -88,14 +78,32 @@ model: &structure
     snr_range: Null # [50, 300]
     normalization: *normalization
 
+pretrain:
+  pretrain_model: True
+  number_of_echoes: *num_te 
+  first_echo_time: *1st_te
+  echo_spacing: *delta_te
+  number_of_pools: *num_pool
+  number_of_samples: 200000
+  t2_ranges: [*t2s_my, *t2s_ie, *t2s_fr]
+  amplitude_ranges: [[0,0.3],[0,1],[0,1]]
+  snr_range: &snr_range [30, 100]
+  loss: {'t2s': 'categorical_crossentropy', 'amps': 'categorical_crossentropy','fitted_signals': 'categorical_crossentropy'}
+  loss_weights: {'t2s': 5, 'amps': 30, 'fitted_signals': 0.1}
+  metrics: {'t2s': 'mae', 'amps': 'mae', 'fitted_signals': 'mae'}
+  epochs: 20
+  learning_rate: 0.001
+  batch_size: 512
+  verbose: 1
+
 training:
   # model compile
   name: *id
   model_structure: *structure 
-  loss_function: categorical_crossentropy # categorical_crossentropy for normalization=True only
+  loss_function: {'fitted_signals': 'categorical_crossentropy'} # categorical_crossentropy for normalization=True only
   optimizer:
     name: adamax
-    lr: 0.001
+    learning_rate: 0.0001
     clipnorm: Null
     clipvalue: Null
   metric: mae
@@ -125,4 +133,5 @@ training:
 
 postprocessing:
   mwf_cutoff: *my_t2_cutoff
+  save_residuals: True
 

@@ -28,6 +28,45 @@ def build_sled(encoder, decoder):
     return sled
 
 
+def apply_sled_to_volume(sled, volume):
+    """
+    Apply the trained SLED model to a 4D volume.
+    
+    Args:
+        sled: The trained SLED model. It should output a dictionary with
+              keys 'fitted_signals', 't2s', and 'amps'.
+        volume: A 4D numpy array of shape (X, Y, Z, T).
+
+    Returns:
+        fitted_signals_map: A numpy array of shape (X, Y, Z, T) with the fitted signals.
+        t2s_map: A numpy array of shape (X, Y, Z, num_classes) with T2 times.
+        amps_map: A numpy array of shape (X, Y, Z, num_classes) with amplitudes.
+    """
+    # Flatten the volume from (X, Y, Z, T) to (N, T)
+    # where N = X * Y * Z
+    flattened_volume = volume.reshape(-1, volume.shape[-1])
+    
+    # Predict using the SLED model
+    preds = sled.predict(flattened_volume, verbose=0)
+    
+    # Extract predictions
+    fitted_signals = preds['fitted_signals']  # shape: (N, T)
+    t2s = preds['t2s']                        # shape: (N, num_classes)
+    amps = preds['amps']                      # shape: (N, num_classes)
+    
+    # Reshape back to original volume dimensions
+    # fitted_signals_map: (X, Y, Z, T)
+    fitted_signals_map = fitted_signals.reshape(volume.shape)
+    
+    # t2s_map: (X, Y, Z, num_classes)
+    t2s_map = t2s.reshape(volume.shape[:-1] + (t2s.shape[-1],))
+    
+    # amps_map: (X, Y, Z, num_classes)
+    amps_map = amps.reshape(volume.shape[:-1] + (amps.shape[-1],))
+
+    return fitted_signals_map, t2s_map, amps_map
+
+
 if __name__ == "__main__":
     from encoder_mpool import build_encoder_mpool
     from decoder_exp import build_decoder_exp
