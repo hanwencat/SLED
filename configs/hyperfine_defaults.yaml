@@ -4,9 +4,9 @@ io: &paths
   # data_path: data/FOV_large/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808_recon_all.nii.gz
   mask_path: data/new_data/CALIPR_HC/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808.user_rrdf_20241011_094406_calipr_recon_all_mask.nii.gz # if no mask, set to Null or False. However, mask is recommended for better performance
   # mask_path: Null
-  save_path: results/new_data/rep2_3pool_
-  descrip: 3-pool fitting with hyperfine configs # add descriptive text to header (max 80 chars)
-  save_model_path: &model_path models/rep2_3pool.h5
+  save_path: results/pretrain/t2_with_gaps_
+  descrip: leave T2 gaps between 3 pools  # add descriptive text to header (max 80 chars)
+  save_model_path: &model_path models/t2_with_gaps_.h5
 
 fitting:
   number_of_echoes: &num_te 80 # if less than the total number of echoes in the data, the first n echoes will be used
@@ -133,5 +133,5 @@ training:
 
 postprocessing:
   mwf_cutoff: *my_t2_cutoff
-  save_residuals: True
+  save_residuals: False
 
