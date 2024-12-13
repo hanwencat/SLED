@@ -85,7 +85,7 @@ def main(config):
 
 if __name__ == '__main__':
 
-    with open('configs/hyperfine_80echo.yaml') as f:
+    with open('configs/hyperfine_defaults.yaml') as f:
     # with open('configs/mpool.yaml') as f:
         config = yaml.safe_load(f)
     
