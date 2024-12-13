@@ -1,37 +1,6 @@
+# from scipy.special import i0
 import numpy as np
 import tensorflow as tf
-
-
-def pretrain_sled(config, sled, decays, amps, t2s):
-    """Pretrain the SLED model with synthetic data"""
-    
-    # Compile the model
-    sled.compile(
-        optimizer=tf.keras.optimizers.Adamax(learning_rate=config['learning_rate']),
-        # loss=config['loss'],
-        loss=RicianNLLLoss(sigma=0.1, name="rician_nll_loss"),
-        loss_weights=config['loss_weights'],
-        metrics=config['metrics'],
-    )
-
-    # Prepare training data
-    y_train = {
-        't2s': t2s,
-        'amps': amps,
-        'fitted_signals': decays
-    }
-
-    # Train the model
-    history = sled.fit(
-        decays,
-        y_train,
-        epochs=config['epochs'],
-        batch_size=config['batch_size'],
-        verbose=config['verbose'],
-    )
-
-    return history
-
 
 def log_i0_stable(x):
     # x: tf.Tensor

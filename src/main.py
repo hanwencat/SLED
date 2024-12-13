@@ -7,9 +7,9 @@ from models.encoder_3pool import build_encoder_3pool, apply_encoder
 # from models.encoder_mpool import build_encoder_mpool, apply_encoder
 from models.decoder_exp import build_decoder_exp
 from models.sled import build_sled, apply_sled_to_volume
-from pretrain.multi_exp_decay import generate_pretrain_data
-from pretrain.pretrain_sled import pretrain_sled
-from models.train import train_model
+from simulation.multi_exp_decay import generate_pretrain_data
+from train.pretrain_sled import pretrain_sled
+from train.train import train_model
 import keras
 import numpy as np
 

@@ -13,10 +13,10 @@ fitting:
   first_echo_time: &1st_te 0.00431
   echo_spacing: &delta_te 0.00431
   number_of_pools: &num_pool 3
-  range_t2_my: &t2s_my [0.01, 0.03]
-  range_t2_ie: &t2s_ie [0.075, 0.2]
+  range_t2_my: &t2s_my [0.01, 0.025]
+  range_t2_ie: &t2s_ie [0.075, 0.15]
   range_t2_fr: &t2s_fr [0.5, 1]
-  mwf_cutoff: &my_t2_cutoff 0.03
+  mwf_cutoff: &my_t2_cutoff 0.025
 
 preprocessing:
   mask_threshold: 0.5
@@ -87,9 +87,10 @@ pretrain:
   number_of_samples: 200000
   t2_ranges: [*t2s_my, *t2s_ie, *t2s_fr]
   amplitude_ranges: [[0,0.3],[0,1],[0,1]]
-  snr_range: &snr_range [30, 100]
+  snr_range: &snr_range [30, 50]
   loss: {'t2s': 'categorical_crossentropy', 'amps': 'categorical_crossentropy','fitted_signals': 'rician_nll_loss'}
-  loss_weights: {'t2s': 5, 'amps': 30, 'fitted_signals': 0.5}
+  loss_rician_sigma: 0.1
+  loss_weights: {'t2s': 0, 'amps': 10, 'fitted_signals': 1}
   metrics: {'t2s': 'mae', 'amps': 'mae', 'fitted_signals': 'mae'}
   epochs: 20
   learning_rate: 0.001
@@ -101,6 +102,7 @@ training:
   name: *id
   model_structure: *structure 
   loss: {'fitted_signals': 'rician_nll_loss'} # categorical_crossentropy for normalization=True only
+  loss_rician_sigma: 0.1
   optimizer:
     name: adamax
     learning_rate: 0.0001
