@@ -1,7 +1,7 @@
 import nibabel as nib
 import yaml
 import utility.image_util as iu
-from models.encoder_3pool import build_encoder_3pool, apply_encoder
+from models.encoder_3pool import build_encoder_3pool
 # from models.encoder_2pool import build_encoder_2pool, apply_encoder
 # from models.encoder_3pool_rl import build_encoder_3pool_rl, apply_encoder
 # from models.encoder_mpool import build_encoder_mpool, apply_encoder
@@ -27,14 +27,17 @@ def main(config):
         mask_3d = nib.load(config['io']['mask_path']).get_fdata()
 
     # data preprocessing
-    data_4d = data_4d[..., 0:config['fitting']['number_of_echoes']] # truncate later echoes if needed
+    if config['fitting']['half_echoes'] == True:
+        data_4d = data_4d[..., 0:config['fitting']['number_of_echoes']*2:2] # even echoes only
+    else:
+        data_4d = data_4d[..., 0:config['fitting']['number_of_echoes']] # truncate later echoes if needed
     if iu.check_binary(mask_3d) != True: # binarize the mask if it's not binary
         mask_3d = iu.binarize(mask_3d, config['preprocessing']['mask_threshold'])
     data_masked = iu.mask_4D_data(data_4d, mask_3d)
     data_flat, data_flat_norm = iu.flatten_filter_normalize(data_masked)
     if config['preprocessing']['normalization'] == True:
         data_input = data_flat_norm
-        data_4d = data_4d / data_4d[..., 0:1] # normalize the 4D data
+        data_4d = data_4d / data_4d[..., 0:1] # normalize the 4D data, may contain zero division
         amps_scaling = 1
     else:
         data_input = data_flat
@@ -86,7 +89,6 @@ def main(config):
 if __name__ == '__main__':
 
     with open('configs/hyperfine_defaults.yaml') as f:
-    # with open('configs/mpool.yaml') as f:
         config = yaml.safe_load(f)
     
     main(config)
