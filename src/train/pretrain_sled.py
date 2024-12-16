@@ -42,6 +42,7 @@ def pretrain_sled(config, sled, decays, amps, t2s):
         y_train,
         epochs=config['epochs'],
         batch_size=config['batch_size'],
+        shuffle=config['shuffle'],
         verbose=config['verbose'],
     )
 

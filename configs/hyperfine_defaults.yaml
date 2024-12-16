@@ -1,8 +1,8 @@
 io: &paths
   subject_id: &id control_01
-  data_path: data/FOV_large/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808_recon_all.nii.gz
+  data_path: data/new_data/CALIPR_HC/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808.user_rrdf_20241011_093250_calipr_recon_all.nii
   # data_path: data/FOV_large/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808_recon_all.nii.gz
-  mask_path: data/FOV_large/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808_recon_mask.nii.gz # if no mask, set to Null or False. However, mask is recommended for better performance
+  mask_path: data/new_data/CALIPR_HC/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808.user_rrdf_20241011_093250_calipr_recon_all_mask.nii.gz # if no mask, set to Null or False. However, mask is recommended for better performance
   # mask_path: Null
   save_path: results/rician/rician_
   descrip: assume rician noise  # add descriptive text to header (max 80 chars)
@@ -10,13 +10,14 @@ io: &paths
 
 fitting:
   number_of_echoes: &num_te 80 # if less than the total number of echoes in the data, the first n echoes will be used
+  half_echoes: False # if True, the even number of echoes will be used (0,2,4,6,...)
   first_echo_time: &1st_te 0.00431
   echo_spacing: &delta_te 0.00431
   number_of_pools: &num_pool 3
-  range_t2_my: &t2s_my [0.01, 0.025]
-  range_t2_ie: &t2s_ie [0.075, 0.15]
+  range_t2_my: &t2s_my [0.01, 0.03]
+  range_t2_ie: &t2s_ie [0.09, 0.15]
   range_t2_fr: &t2s_fr [0.5, 1]
-  mwf_cutoff: &my_t2_cutoff 0.025
+  mwf_cutoff: &my_t2_cutoff 0.03
 
 preprocessing:
   mask_threshold: 0.5
@@ -44,12 +45,14 @@ model: &structure
       num_classes: 1
       activation: sigmoid
       activation_last_layer: sigmoid
+      l1_reg: 0
 
     base_mlp_amps:
       hidden_layers: [256, 256]
       num_classes: *num_pool
       activation: sigmoid
       activation_last_layer: softmax
+      l1_reg: 0.1
 
     base_resnet_t2: 
       hidden_layers_head: [128]
@@ -59,6 +62,7 @@ model: &structure
       num_classes: 1
       activation: sigmoid
       activation_last_layer: sigmoid
+      l1_reg: 0
 
     base_resnet_amps: 
       hidden_layers_head: [128]
@@ -68,6 +72,7 @@ model: &structure
       num_classes: *num_pool
       activation: sigmoid
       activation_last_layer: sigmoid
+      l1_reg: 0.1
     
   decoder:
     name: decoder_exp
@@ -86,23 +91,26 @@ pretrain:
   number_of_pools: *num_pool
   number_of_samples: 200000
   t2_ranges: [*t2s_my, *t2s_ie, *t2s_fr]
-  amplitude_ranges: [[0,0.3],[0,1],[0,1]]
-  snr_range: &snr_range [30, 50]
+  amplitude_ranges: [[0,0.3],[0,1],[0,1]] # for white and grey matter only, csf is simulated independently
+  snr_range: &snr_range [30, 60]
+  csf_sim: True # if True, simulate CSF independently
+  csf_n_samples: 50000
   loss: {'t2s': 'categorical_crossentropy', 'amps': 'categorical_crossentropy','fitted_signals': 'rician_nll_loss'}
-  loss_rician_sigma: 0.1
-  loss_weights: {'t2s': 0, 'amps': 10, 'fitted_signals': 1}
+  loss_rician_sigma: 0.06
+  loss_weights: {'t2s': 0, 'amps': 50, 'fitted_signals': 0.1}
   metrics: {'t2s': 'mae', 'amps': 'mae', 'fitted_signals': 'mae'}
   epochs: 20
   learning_rate: 0.001
   batch_size: 512
   verbose: 1
+  shuffle: True
 
 training:
   # model compile
   name: *id
   model_structure: *structure 
   loss: {'fitted_signals': 'rician_nll_loss'} # categorical_crossentropy for normalization=True only
-  loss_rician_sigma: 0.1
+  loss_rician_sigma: 0.06
   optimizer:
     name: adamax
     learning_rate: 0.0001

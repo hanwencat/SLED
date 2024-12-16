@@ -1,6 +1,7 @@
 import tensorflow as tf
 import keras
 from keras.layers import Dense, BatchNormalization, Activation, Add, Input, Lambda
+from tensorflow.keras import regularizers
 import yaml
 import numpy as np
 
@@ -48,7 +49,12 @@ def mlp(config, x, name=None):
     # Set up the model architecture
     for layer_size in config['hidden_layers']:
         x = Dense(layer_size, activation=config['activation'])(x)
-    x = Dense(config['num_classes'], activation=config['activation_last_layer'], name=name)(x)
+    x = Dense(
+        config['num_classes'], 
+        activation=config['activation_last_layer'], 
+        kernel_regularizer=regularizers.l1(config['l1_reg']), 
+        name=name,
+        )(x)
     
     return x
 
@@ -76,7 +82,7 @@ def resnet(config, x):
         x = residual_block(x, config['res_block_size'], activation=config['activation'])
     for layer_size in config['hidden_layers_tail']:
             x = Dense(layer_size, activation=config['activation'])(x)
-    x = Dense(config['num_classes'], activation=config['activation_last_layer'])(x)
+    x = Dense(config['num_classes'], activation=config['activation_last_layer'], kernel_regularizer=regularizers.l1(config['l1_reg']))(x)
     
     return x
 
