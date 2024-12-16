@@ -43,14 +43,14 @@ model: &structure
     base_mlp_t2:
       hidden_layers: [256, 128]
       num_classes: 1
-      activation: sigmoid
-      activation_last_layer: sigmoid
+      activation: relu
+      activation_last_layer: relu
       l1_reg: 0
 
     base_mlp_amps:
       hidden_layers: [256, 256]
       num_classes: *num_pool
-      activation: sigmoid
+      activation: relu
       activation_last_layer: softmax
       l1_reg: 0.1
 
@@ -60,8 +60,8 @@ model: &structure
       res_block_size: [256, 256]
       hidden_layers_tail: [128]
       num_classes: 1
-      activation: sigmoid
-      activation_last_layer: sigmoid
+      activation: relu
+      activation_last_layer: relu
       l1_reg: 0
 
     base_resnet_amps: 
@@ -70,9 +70,9 @@ model: &structure
       res_block_size: [256, 256]
       hidden_layers_tail: [128]
       num_classes: *num_pool
-      activation: sigmoid
-      activation_last_layer: sigmoid
-      l1_reg: 0.1
+      activation: relu
+      activation_last_layer: softmax
+      l1_reg: 0
     
   decoder:
     name: decoder_exp
@@ -95,7 +95,7 @@ pretrain:
   snr_range: &snr_range [30, 60]
   csf_sim: True # if True, simulate CSF independently
   csf_n_samples: 50000
-  loss: {'t2s': 'categorical_crossentropy', 'amps': 'categorical_crossentropy','fitted_signals': 'rician_nll_loss'}
+  loss: {'t2s': 'categorical_crossentropy', 'amps': 'categorical_crossentropy', 'fitted_signals': 'rician_nll_loss'}
   loss_rician_sigma: 0.06
   loss_weights: {'t2s': 0, 'amps': 50, 'fitted_signals': 0.1}
   metrics: {'t2s': 'mae', 'amps': 'mae', 'fitted_signals': 'mae'}
