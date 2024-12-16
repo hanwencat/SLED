@@ -41,6 +41,40 @@ def generate_pretrain_data(config):
     decays = np.sqrt((decays + noise_real) ** 2 + noise_imag ** 2)
     decays /= decays[:, 0:1]
     
+    # If CSF simulations are requested
+    if config['csf_sim']:
+        csf_n_samples = config['csf_n_samples']
+        
+        # Fixed amplitudes for CSF: [0, 0, 1]
+        csf_amplitudes = np.tile([0, 0, 1], (csf_n_samples, 1))
+        
+        # Generate T2 times and SNR for CSF samples
+        csf_t2_times = np.array([
+            np.random.uniform(low, high, size=csf_n_samples)
+            for low, high in t2_ranges
+        ]).T
+        
+        csf_SNRs = np.random.uniform(snr_range[0], snr_range[1], csf_n_samples)
+        
+        # Compute CSF decays
+        csf_decays = np.sum(
+            csf_amplitudes.reshape(csf_n_samples, 1, pools) *
+            np.exp(-echo_times.reshape(1, num_echoes, 1) / csf_t2_times.reshape(csf_n_samples, 1, pools)),
+            axis=2
+        )
+        
+        # Add noise to CSF decays
+        csf_variance = 1 / (csf_SNRs * (np.pi / 2)**0.5)
+        csf_noise_real = np.random.normal(0, csf_variance[:, np.newaxis], size=(csf_n_samples, num_echoes))
+        csf_noise_imag = np.random.normal(0, csf_variance[:, np.newaxis], size=(csf_n_samples, num_echoes))
+        csf_decays = np.sqrt((csf_decays + csf_noise_real)**2 + csf_noise_imag**2)
+        csf_decays /= csf_decays[:, 0:1]
+        
+        # Concatenate CSF data with the main dataset
+        decays = np.concatenate([decays, csf_decays], axis=0)
+        amplitudes = np.concatenate([amplitudes, csf_amplitudes], axis=0)
+        t2_times = np.concatenate([t2_times, csf_t2_times], axis=0)
+
     return decays, (amplitudes, t2_times)
 
     
