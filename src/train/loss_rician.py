@@ -35,6 +35,7 @@ def log_i0_stable(x):
     return tf.where(absx < threshold, small_x_branch(), large_x_branch())
 
 class RicianNLLLoss(tf.keras.losses.Loss):
+    # Rician negative log-likelihood loss
     def __init__(self, sigma=0.02, name="rician_nll_loss"):
         super().__init__(name=name)
         self.sigma = sigma

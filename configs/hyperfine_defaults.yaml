@@ -1,7 +1,6 @@
 io: &paths
   subject_id: &id control_01
   data_path: data/new_data/CALIPR_HC/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808.user_rrdf_20241011_093250_calipr_recon_all.nii
-  # data_path: data/FOV_large/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808_recon_all.nii.gz
   mask_path: data/new_data/CALIPR_HC/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808.user_rrdf_20241011_093250_calipr_recon_all_mask.nii.gz # if no mask, set to Null or False. However, mask is recommended for better performance
   # mask_path: Null
   save_path: results/rician/rician_
@@ -43,14 +42,14 @@ model: &structure
     base_mlp_t2:
       hidden_layers: [256, 128]
       num_classes: 1
-      activation: relu
-      activation_last_layer: relu
+      activation: sigmoid
+      activation_last_layer: sigmoid
       l1_reg: 0
 
     base_mlp_amps:
       hidden_layers: [256, 256]
       num_classes: *num_pool
-      activation: relu
+      activation: sigmoid
       activation_last_layer: softmax
       l1_reg: 0.1
 
@@ -60,8 +59,8 @@ model: &structure
       res_block_size: [256, 256]
       hidden_layers_tail: [128]
       num_classes: 1
-      activation: relu
-      activation_last_layer: relu
+      activation: sigmoid
+      activation_last_layer: sigmoid
       l1_reg: 0
 
     base_resnet_amps: 
@@ -70,7 +69,7 @@ model: &structure
       res_block_size: [256, 256]
       hidden_layers_tail: [128]
       num_classes: *num_pool
-      activation: relu
+      activation: sigmoid
       activation_last_layer: softmax
       l1_reg: 0
     
@@ -96,7 +95,7 @@ pretrain:
   csf_sim: True # if True, simulate CSF independently
   csf_n_samples: 50000
   loss: {'t2s': 'categorical_crossentropy', 'amps': 'categorical_crossentropy', 'fitted_signals': 'rician_nll_loss'}
-  loss_rician_sigma: 0.06
+  loss_rician_sigma: 0.08
   loss_weights: {'t2s': 0, 'amps': 50, 'fitted_signals': 0.1}
   metrics: {'t2s': 'mae', 'amps': 'mae', 'fitted_signals': 'mae'}
   epochs: 20
@@ -110,7 +109,7 @@ training:
   name: *id
   model_structure: *structure 
   loss: {'fitted_signals': 'rician_nll_loss'} # categorical_crossentropy for normalization=True only
-  loss_rician_sigma: 0.06
+  loss_rician_sigma: 0.08
   optimizer:
     name: adamax
     learning_rate: 0.0001
