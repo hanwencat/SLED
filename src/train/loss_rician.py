@@ -36,14 +36,19 @@ def log_i0_stable(x):
 
 class RicianNLLLoss(tf.keras.losses.Loss):
     # Rician negative log-likelihood loss
-    def __init__(self, sigma=0.02, name="rician_nll_loss"):
+    def __init__(self, name="rician_nll_loss"):
         super().__init__(name=name)
-        self.sigma = sigma
 
     def call(self, y_true, y_pred):
-        s = tf.maximum(y_true, 1e-8)
-        nu = tf.maximum(y_pred, 1e-8)
-        sigma = self.sigma
+        nu = y_pred[..., :-1]   # shape (batch,80)
+        sigma = y_pred[..., -1] # shape (batch,)
+        
+        # reshape sigma to (batch,1)
+        sigma = tf.reshape(sigma, (-1, 1))  # Now shape is (batch,1)
+        
+        s = tf.maximum(y_true, 1e-8)    # shape (batch,80)
+        nu = tf.maximum(nu, 1e-8)       # shape (batch,80)
+        sigma = tf.maximum(sigma, 1e-3) # shape (batch,1)
 
         argument = (s * nu) / (sigma**2)
 
@@ -57,3 +62,28 @@ class RicianNLLLoss(tf.keras.losses.Loss):
 
         nll = tf.reduce_sum(term, axis=-1)
         return tf.reduce_mean(nll, axis=0)
+
+
+# class RicianNLLLoss(tf.keras.losses.Loss):
+#     # Rician negative log-likelihood loss
+#     def __init__(self, sigma=0.02, name="rician_nll_loss"):
+#         super().__init__(name=name)
+#         self.sigma = sigma
+
+#     def call(self, y_true, y_pred):
+#         s = tf.maximum(y_true, 1e-8)
+#         nu = tf.maximum(y_pred, 1e-8)
+#         sigma = self.sigma
+
+#         argument = (s * nu) / (sigma**2)
+
+#         # Use the stable approximation for log(i0(x))
+#         log_i0_val = log_i0_stable(argument)
+
+#         term = (tf.math.log(sigma**2 + 1e-30)
+#                 - tf.math.log(s + 1e-30)
+#                 + (tf.square(s) + tf.square(nu)) / (2.0 * sigma**2)
+#                 - log_i0_val)
+
+#         nll = tf.reduce_sum(term, axis=-1)
+#         return tf.reduce_mean(nll, axis=0)

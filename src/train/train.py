@@ -43,13 +43,14 @@ def train_model(model, config, x, y):
         else:
             # It's a custom rician loss
             loss_class = loss_mapping[loss_name]
-            final_loss[output_name] = loss_class(sigma=config['loss_rician_sigma'])
+            final_loss[output_name] = loss_class()
+            # final_loss[output_name] = loss_class(sigma=config['loss_rician_sigma'])
     
     # Compile the model 
     model.compile(
-        loss=final_loss,
+        loss={'fitted_signals_with_sigma': final_loss, 'amps': None, 't2s': None},
         optimizer=optimizer,
-        metrics=config['metric'],
+        # metrics=config['metric'],
     )
 
     callbacks_list = [

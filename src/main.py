@@ -60,13 +60,13 @@ def main(config):
         pretrain_sled(config['pretrain'], sled, decays, amps, t2s)
 
     # train SLED with preprocessed data
-    train_model(sled, config['training'], data_input, {'fitted_signals': data_input})
+    train_model(sled, config['training'], data_input, data_input)
     # load the best model (need to be confirmed)
     if config['training']['save_best_only']:
         sled.load_weights(config['training']['save_model_path'])
 
     # extract latent parameter maps after training
-    fitted_signals_map, t2s_map, amps_map = apply_sled_to_volume(sled, data_4d)
+    fitted_signals_map, t2s_map, amps_map, sigma_map = apply_sled_to_volume(sled, data_4d)
     amps_map = iu.amps_sum2one(amps_map)
     mwf_map = iu.mwf_production(t2s_map, amps_map, config['postprocessing']['mwf_cutoff'])
     residuals_map = fitted_signals_map - data_4d
@@ -79,6 +79,7 @@ def main(config):
     nib.save(nib.Nifti1Image(t2s_map, affine, header), config['io']['save_path']+'t2s.nii.gz')
     nib.save(nib.Nifti1Image(amps_map, affine, header), config['io']['save_path']+'amps.nii.gz')
     nib.save(nib.Nifti1Image(mwf_map, affine, header), config['io']['save_path']+'mwf.nii.gz')
+    nib.save(nib.Nifti1Image(sigma_map, affine, header), config['io']['save_path']+'sigma.nii.gz')
     if config['postprocessing']['save_residuals']:
         nib.save(nib.Nifti1Image(residuals_map, affine, header), config['io']['save_path']+'residuals.nii.gz')  
 

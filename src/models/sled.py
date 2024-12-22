@@ -1,4 +1,5 @@
 from keras.models import Model
+import tensorflow as tf
 import yaml
 
 
@@ -16,12 +17,16 @@ def build_sled(encoder, decoder):
 
     # Define the inputs and outputs of the model
     input = encoder.inputs
-    t2s, amps = encoder.output['t2s'], encoder.output['amps']
-    output = decoder([t2s, amps])
+    t2s, amps, sigma = encoder.output['t2s'], encoder.output['amps'], encoder.output['sigma']
+    fitted_signals = decoder([t2s, amps])
+
+    # Concatenate along the last axis (-1)
+    fitted_signals_with_sigma = tf.concat([fitted_signals, sigma], axis=-1)
+    
     # Create a Keras model that connects the encoder and decoder
     sled = Model(
         inputs=input, 
-        outputs={'fitted_signals':output, 't2s':t2s, 'amps':amps}, 
+        outputs={'fitted_signals_with_sigma':fitted_signals_with_sigma, 't2s':t2s, 'amps':amps}, 
         name='SLED',
         )
 
@@ -41,6 +46,7 @@ def apply_sled_to_volume(sled, volume):
         fitted_signals_map: A numpy array of shape (X, Y, Z, T) with the fitted signals.
         t2s_map: A numpy array of shape (X, Y, Z, num_classes) with T2 times.
         amps_map: A numpy array of shape (X, Y, Z, num_classes) with amplitudes.
+        sigma_map: A numpy array of shape (X, Y, Z, 1) with the noise standard deviation.
     """
     # Flatten the volume from (X, Y, Z, T) to (N, T)
     # where N = X * Y * Z
@@ -50,9 +56,12 @@ def apply_sled_to_volume(sled, volume):
     preds = sled.predict(flattened_volume, verbose=0)
     
     # Extract predictions
-    fitted_signals = preds['fitted_signals']  # shape: (N, T)
+    fitted_signals_with_sigma = preds['fitted_signals_with_sigma']  # shape: (N, T)
     t2s = preds['t2s']                        # shape: (N, num_classes)
     amps = preds['amps']                      # shape: (N, num_classes)
+    
+    fitted_signals = fitted_signals_with_sigma[..., :-1]  # shape: (N, T)
+    sigma = fitted_signals_with_sigma[...,-1]                    # shape: (N, 1)
     
     # Reshape back to original volume dimensions
     # fitted_signals_map: (X, Y, Z, T)
@@ -63,8 +72,11 @@ def apply_sled_to_volume(sled, volume):
     
     # amps_map: (X, Y, Z, num_classes)
     amps_map = amps.reshape(volume.shape[:-1] + (amps.shape[-1],))
+    
+    # sigma_map: (X, Y, Z, 1)
+    sigma_map = sigma.reshape(volume.shape[:-1] + (1,))
 
-    return fitted_signals_map, t2s_map, amps_map
+    return fitted_signals_map, t2s_map, amps_map, sigma_map
 
 
 if __name__ == "__main__":

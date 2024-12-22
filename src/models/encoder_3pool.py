@@ -39,8 +39,14 @@ def build_encoder_3pool(config, amps_scaling=1):
     # Multiply by amps_scaling using a Lambda layer and assign name 'amps'
     amps = Lambda(lambda x: x * amps_scaling, name='amps')(amps)
     
+    # use 1 NN to estimate the noise variance sigma
+    if config['base_nn_amps']['name'] == 'mlp':
+        sigma = mlp(config['base_mlp_sigma'], x)
+    if config['base_nn_amps']['name'] == 'resnet':
+        sigma = resnet(config['base_resnet_sigma'], x)
+    
     # Build the encoder model with named outputs
-    encoder = keras.Model(inputs=x, outputs={'t2s': t2s, 'amps': amps}, name="encoder")
+    encoder = keras.Model(inputs=x, outputs={'t2s': t2s, 'amps': amps, 'sigma': sigma}, name="encoder")
     
     return encoder
 
@@ -85,30 +91,6 @@ def resnet(config, x):
     x = Dense(config['num_classes'], activation=config['activation_last_layer'], kernel_regularizer=regularizers.l1(config['l1_reg']))(x)
     
     return x
-
-
-# def apply_encoder(encoder, volume):
-#     """Apply the trained encoder to process the volume dataset (exclude NaN and zero voxels)"""
-    
-#     flattened_volume = volume.reshape(-1, volume.shape[-1])
-#     mask = np.isnan(flattened_volume) | (flattened_volume == 0)
-#     valid_indices = ~(mask.any(axis=-1))
-#     valid_flattened_volume = flattened_volume[valid_indices]
-
-#     t2s, amps = encoder.predict(valid_flattened_volume)
-
-#     output_shape_flat = flattened_volume.shape[:-1] + (t2s.shape[-1],)
-#     t2s_map_flat = np.zeros(output_shape_flat)
-#     amps_map_flat = np.zeros(output_shape_flat)
-
-#     t2s_map_flat[valid_indices] = t2s
-#     amps_map_flat[valid_indices] = amps
-
-#     output_shape = volume.shape[:-1] + (t2s.shape[-1],)
-#     t2s_map = t2s_map_flat.reshape(output_shape)
-#     amps_map = amps_map_flat.reshape(output_shape)
-
-#     return t2s_map, amps_map
 
 
 def apply_encoder(encoder, volume):

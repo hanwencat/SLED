@@ -52,6 +52,13 @@ model: &structure
       activation: sigmoid
       activation_last_layer: softmax
       l1_reg: 0.1
+    
+    base_mlp_sigma:
+      hidden_layers: [256, 128]
+      num_classes: 1
+      activation: sigmoid
+      activation_last_layer: sigmoid
+      l1_reg: 0
 
     base_resnet_t2: 
       hidden_layers_head: [128]
@@ -83,7 +90,7 @@ model: &structure
     normalization: *normalization
 
 pretrain:
-  pretrain_model: True
+  pretrain_model: False
   number_of_echoes: *num_te 
   first_echo_time: *1st_te
   echo_spacing: *delta_te
@@ -108,7 +115,7 @@ training:
   # model compile
   name: *id
   model_structure: *structure 
-  loss: {'fitted_signals': 'rician_nll_loss'} # categorical_crossentropy for normalization=True only
+  loss: {'fitted_signals_with_sigma': 'rician_nll_loss'} # categorical_crossentropy for normalization=True only
   loss_rician_sigma: 0.08
   optimizer:
     name: adamax
@@ -119,7 +126,7 @@ training:
 
   # model training
   shuffle: True
-  epochs: 100
+  epochs: 50
   batch_size: 512
   verbose: 1 
 
