@@ -1,13 +1,16 @@
 import numpy as np
 import tensorflow as tf
 from .loss_rician import RicianNLLLoss
+from .loss_gaussian_nll import loss_gaussian_nll
+from .loss_rician_nll import loss_rician_nll
 
-def pretrain_sled(config, sled, decays, amps, t2s):
+def pretrain_sled(config, sled, decays, amps, t2s, variance):
     """Pretrain the SLED model with synthetic data"""
     
     # map the loss name to the loss class
     loss_mapping = {
-        "rician_nll_loss": RicianNLLLoss  # your custom loss class defined somewhere
+        "rician_nll_loss": RicianNLLLoss,  # your custom loss class defined somewhere
+        "gaussian_nll_loss": RicianNLLLoss  # your custom loss class defined somewhere
     }
     output_loss = config['loss']  # This is a dictionary with keys 't2s', 'amps', 'fitted_signals'
     final_loss = {}
@@ -33,7 +36,8 @@ def pretrain_sled(config, sled, decays, amps, t2s):
     y_train = {
         't2s': t2s,
         'amps': amps,
-        'fitted_signals': decays
+        'sigma': variance,
+        'fitted_signals': decays,
     }
 
     # Train the model

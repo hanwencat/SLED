@@ -1,5 +1,6 @@
 from keras.models import Model
 import tensorflow as tf
+import numpy as np
 import yaml
 
 
@@ -18,15 +19,15 @@ def build_sled(encoder, decoder):
     # Define the inputs and outputs of the model
     input = encoder.inputs
     t2s, amps, sigma = encoder.output['t2s'], encoder.output['amps'], encoder.output['sigma']
-    fitted_signals = decoder([t2s, amps])
+    multiecho = decoder([t2s, amps])
 
-    # Concatenate along the last axis (-1)
-    fitted_signals_with_sigma = tf.concat([fitted_signals, sigma], axis=-1)
+    # # Concatenate along the last axis (-1) for single output approach
+    # multiecho_with_sigma = tf.concat([multiecho, sigma], axis=-1)
     
     # Create a Keras model that connects the encoder and decoder
     sled = Model(
         inputs=input, 
-        outputs={'fitted_signals_with_sigma':fitted_signals_with_sigma, 't2s':t2s, 'amps':amps}, 
+        outputs={'multiecho':multiecho, 't2s':t2s, 'amps':amps, 'sigma':sigma}, 
         name='SLED',
         )
 
@@ -39,11 +40,11 @@ def apply_sled_to_volume(sled, volume):
     
     Args:
         sled: The trained SLED model. It should output a dictionary with
-              keys 'fitted_signals', 't2s', and 'amps'.
+              keys 'multiecho', 't2s', and 'amps'.
         volume: A 4D numpy array of shape (X, Y, Z, T).
 
     Returns:
-        fitted_signals_map: A numpy array of shape (X, Y, Z, T) with the fitted signals.
+        multiecho_map: A numpy array of shape (X, Y, Z, T) with the fitted multiecho signals.
         t2s_map: A numpy array of shape (X, Y, Z, num_classes) with T2 times.
         amps_map: A numpy array of shape (X, Y, Z, num_classes) with amplitudes.
         sigma_map: A numpy array of shape (X, Y, Z, 1) with the noise standard deviation.
@@ -56,16 +57,19 @@ def apply_sled_to_volume(sled, volume):
     preds = sled.predict(flattened_volume, verbose=0)
     
     # Extract predictions
-    fitted_signals_with_sigma = preds['fitted_signals_with_sigma']  # shape: (N, T)
+    multiecho = preds['multiecho']  # shape: (N, T)
     t2s = preds['t2s']                        # shape: (N, num_classes)
     amps = preds['amps']                      # shape: (N, num_classes)
+    sigma = preds['sigma']            # shape: (N, 1)
+    # sigma = np.exp(log_sigma)                 # ensure positivity
     
-    fitted_signals = fitted_signals_with_sigma[..., :-1]  # shape: (N, T)
-    sigma = fitted_signals_with_sigma[...,-1]                    # shape: (N, 1)
+    # single output approach
+    # multiecho = multiecho_with_sigma[..., :-1]  # shape: (N, T)
+    # sigma = multiecho_with_sigma[...,-1]                    # shape: (N, 1)
     
     # Reshape back to original volume dimensions
-    # fitted_signals_map: (X, Y, Z, T)
-    fitted_signals_map = fitted_signals.reshape(volume.shape)
+    # multiecho_map: (X, Y, Z, T)
+    multiecho_map = multiecho.reshape(volume.shape)
     
     # t2s_map: (X, Y, Z, num_classes)
     t2s_map = t2s.reshape(volume.shape[:-1] + (t2s.shape[-1],))
@@ -76,23 +80,23 @@ def apply_sled_to_volume(sled, volume):
     # sigma_map: (X, Y, Z, 1)
     sigma_map = sigma.reshape(volume.shape[:-1] + (1,))
 
-    return fitted_signals_map, t2s_map, amps_map, sigma_map
+    return multiecho_map, t2s_map, amps_map, sigma_map
 
 
-if __name__ == "__main__":
-    from encoder_mpool import build_encoder_mpool
-    from decoder_exp import build_decoder_exp
+# if __name__ == "__main__":
+#     from encoder_mpool import build_encoder_mpool
+#     from decoder_exp import build_decoder_exp
 
-    # Load hyperparameters from YAML config file
-    config_path = 'configs/mpool.yaml' 
-    with open(config_path, 'r') as file:
-        config = yaml.safe_load(file)
+#     # Load hyperparameters from YAML config file
+#     config_path = 'configs/mpool.yaml' 
+#     with open(config_path, 'r') as file:
+#         config = yaml.safe_load(file)
 
-    encoder = build_encoder_mpool(config['model']['encoder'], amps_scaling=1)
-    # encoder.summary()
+#     encoder = build_encoder_mpool(config['model']['encoder'], amps_scaling=1)
+#     # encoder.summary()
 
-    decoder = build_decoder_exp(config['model']['decoder'])
-    # decoder.summary()
+#     decoder = build_decoder_exp(config['model']['decoder'])
+#     # decoder.summary()
 
-    sled = build_sled(encoder=encoder, decoder=decoder)
-    sled.summary()
+#     sled = build_sled(encoder=encoder, decoder=decoder)
+#     sled.summary()

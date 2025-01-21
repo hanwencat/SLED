@@ -2,21 +2,25 @@ io: &paths
   subject_id: &id control_01
   data_path: data/new_data/CALIPR_HC/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808.user_rrdf_20241011_093250_calipr_recon_all.nii
   mask_path: data/new_data/CALIPR_HC/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808.user_rrdf_20241011_093250_calipr_recon_all_mask.nii.gz # if no mask, set to Null or False. However, mask is recommended for better performance
-  # mask_path: Null
-  save_path: results/rician/rician_
-  descrip: assume rician noise  # add descriptive text to header (max 80 chars)
-  save_model_path: &model_path models/rician.h5
+  save_path: results/rician/test/many_pool_fixed_sigma_
+  descrip: many pool with fixed sigma # add descriptive text to header (max 80 chars)
+  save_model_path: &model_path models/many_pool_fixed_sigma.h5
 
 fitting:
   number_of_echoes: &num_te 80 # if less than the total number of echoes in the data, the first n echoes will be used
-  half_echoes: False # if True, the even number of echoes will be used (0,2,4,6,...)
+  # half_echoes: False # if True, the even number of echoes will be used (0,2,4,6,...)
   first_echo_time: &1st_te 0.00431
   echo_spacing: &delta_te 0.00431
-  number_of_pools: &num_pool 3
+  number_of_pools: &num_pool 100
+  fix_t2s: &fix_t2s True
+  t2s_range: &t2s_range [0.005, 1]
   range_t2_my: &t2s_my [0.01, 0.03]
   range_t2_ie: &t2s_ie [0.09, 0.15]
   range_t2_fr: &t2s_fr [0.5, 1]
-  mwf_cutoff: &my_t2_cutoff 0.03
+  mwf_cutoff: &my_t2_cutoff 0.06
+  noise_model: &noise_model gaussian  # Noise model type ('gaussian' or 'rician')
+  fix_sigma: &fix_sigma True
+  sigma_value: &sigma_value 1
 
 preprocessing:
   mask_threshold: 0.5
@@ -28,9 +32,13 @@ model: &structure
     name: encoder model
     input_shape: *num_te
     latent_shape: *num_pool
+    fix_t2s: *fix_t2s
+    t2s_range: *t2s_range
     range_t2_my: *t2s_my
     range_t2_ie: *t2s_ie
     range_t2_fr: *t2s_fr
+    fix_sigma: *fix_sigma
+    sigma_value: *sigma_value
 
     # encoder architecture
     base_nn_t2s:
@@ -45,6 +53,7 @@ model: &structure
       activation: sigmoid
       activation_last_layer: sigmoid
       l1_reg: 0
+      l2_reg: 0
 
     base_mlp_amps:
       hidden_layers: [256, 256]
@@ -52,6 +61,7 @@ model: &structure
       activation: sigmoid
       activation_last_layer: softmax
       l1_reg: 0.1
+      l2_reg: 0
     
     base_mlp_sigma:
       hidden_layers: [256, 128]
@@ -59,6 +69,7 @@ model: &structure
       activation: sigmoid
       activation_last_layer: sigmoid
       l1_reg: 0
+      l2_reg: 0
 
     base_resnet_t2: 
       hidden_layers_head: [128]
@@ -69,6 +80,7 @@ model: &structure
       activation: sigmoid
       activation_last_layer: sigmoid
       l1_reg: 0
+      l2_reg: 0
 
     base_resnet_amps: 
       hidden_layers_head: [128]
@@ -79,6 +91,7 @@ model: &structure
       activation: sigmoid
       activation_last_layer: softmax
       l1_reg: 0
+      l2_reg: 0
     
   decoder:
     name: decoder_exp
@@ -95,51 +108,86 @@ pretrain:
   first_echo_time: *1st_te
   echo_spacing: *delta_te
   number_of_pools: *num_pool
-  number_of_samples: 200000
+  number_of_samples: 100000
   t2_ranges: [*t2s_my, *t2s_ie, *t2s_fr]
-  amplitude_ranges: [[0,0.3],[0,1],[0,1]] # for white and grey matter only, csf is simulated independently
-  snr_range: &snr_range [30, 60]
+  amplitude_ranges: [[0,0.3],[0,1],[0,0.05]] # for white and grey matter only, csf is simulated independently
+  snr_range: &snr_range [30, 100]
+  t2_basis_range: *t2s_range  # bigger range to capture the tails
+  n_t2_points: *num_pool          # number of log-spaced points in the basis
+  sigma_gauss: 1
   csf_sim: True # if True, simulate CSF independently
-  csf_n_samples: 50000
-  loss: {'t2s': 'categorical_crossentropy', 'amps': 'categorical_crossentropy', 'fitted_signals': 'rician_nll_loss'}
-  loss_rician_sigma: 0.08
-  loss_weights: {'t2s': 0, 'amps': 50, 'fitted_signals': 0.1}
-  metrics: {'t2s': 'mae', 'amps': 'mae', 'fitted_signals': 'mae'}
-  epochs: 20
-  learning_rate: 0.001
-  batch_size: 512
-  verbose: 1
-  shuffle: True
+  csf_n_samples: 20000
+  # loss: {'t2s': 'categorical_crossentropy', 'amps': 'categorical_crossentropy', 'fitted_signals': 'rician_nll_loss'}
+  # loss_rician_sigma: 0.08
+  # loss_weights: {'t2s': 0, 'amps': 50, 'fitted_signals': 0.1}
+  # metrics: {'t2s': 'mae', 'amps': 'mae', 'fitted_signals': 'mae'}
+  # epochs: 20
+  # learning_rate: 0.001
+  # batch_size: 512
+  # verbose: 1
+  # shuffle: True
 
+# Training Configuration
 training:
-  # model compile
-  name: *id
-  model_structure: *structure 
-  loss: {'fitted_signals_with_sigma': 'rician_nll_loss'} # categorical_crossentropy for normalization=True only
-  loss_rician_sigma: 0.08
-  optimizer:
-    name: adamax
-    learning_rate: 0.0001
-    clipnorm: Null
-    clipvalue: Null
-  metric: mae
+  batch_size: 512            # Number of samples per gradient update
+  epochs: 30                 # Total number of training epochs
 
-  # model training
-  shuffle: True
-  epochs: 50
-  batch_size: 512
-  verbose: 1 
+  optimizer:               # Optimizer settings
+    learning_rate: 0.001    # Initial learning rate
+    clipnorm: Null           # Gradient clipping norm (use 'null' if not applied)
+    clipvalue: Null         # Gradient clipping value (use 'null' if not applied)
 
-  # callbacks
-  TensorBoard_log_path: logs
-  TensorBoard_hist_freq: 1
-  EarlyStopping_monitor: loss
-  EarlyStopping_patience: 15
-  ReduceLROnPlateau_monitor: loss
-  ReduceLROnPlateau_factor: 0.5
-  ReduceLROnPlateau_patience: 3
-  Checkpoint_monitor: loss
-  save_best_only: True
+  noise_model: *noise_model     
+
+  loss_weights:            # (Optional) Weights for each loss function
+    multiecho: 1
+    t2_times: 1
+    amps: 1
+    sigma: 1
+
+  ReduceLROnPlateau:      # Learning Rate Scheduler configuration
+    monitor: "epoch_loss" # Metric to monitor for reducing LR ('epoch_loss' is training loss)
+    factor: 0.2           # Factor by which the learning rate will be reduced (new_lr = lr * factor)
+    patience: 5           # Number of epochs with no improvement after which LR will be reduced
+    # min_lr: 1e-6          # Lower bound on the learning rate
+    verbose: 1            # Verbosity mode (0: silent, 1: print updates)
+
+  ModelCheckpoint:         # Model Checkpointing configuration
+    filepath: *model_path  # Path to save the model weights
+    monitor: "epoch_loss"                          # Metric to monitor for saving the best model
+    save_best_only: True                            # Whether to save only the best model
+    verbose: 1                                      # Verbosity mode (0: silent, 1: print updates)
+
+# training:
+#   # model compile
+#   name: *id
+#   model_structure: *structure 
+#   noise_model: gaussian # selections = [gaussian, rician]
+#   loss: {'fitted_signals': 'categorical_crossentropy'} # categorical_crossentropy for normalization=True only
+#   loss_rician_sigma: 0.08
+#   optimizer:
+#     name: adamax
+#     learning_rate: 0.0001
+#     clipnorm: Null
+#     clipvalue: Null
+#   metric: mae
+
+#   # model training
+#   shuffle: True
+#   epochs: 100
+#   batch_size: 512
+#   verbose: 1 
+
+#   # callbacks
+#   TensorBoard_log_path: logs
+#   TensorBoard_hist_freq: 1
+#   EarlyStopping_monitor: loss
+#   EarlyStopping_patience: 15
+#   ReduceLROnPlateau_monitor: loss
+#   ReduceLROnPlateau_factor: 0.5
+#   ReduceLROnPlateau_patience: 3
+#   Checkpoint_monitor: loss
+#   save_best_only: True
 
   # paths
   io: *paths
@@ -149,5 +197,5 @@ training:
 
 postprocessing:
   mwf_cutoff: *my_t2_cutoff
-  save_residuals: False
+  save_residuals: True
 

@@ -2,14 +2,12 @@ import nibabel as nib
 import yaml
 import utility.image_util as iu
 from models.encoder_3pool import build_encoder_3pool
-# from models.encoder_2pool import build_encoder_2pool, apply_encoder
-# from models.encoder_3pool_rl import build_encoder_3pool_rl, apply_encoder
-# from models.encoder_mpool import build_encoder_mpool, apply_encoder
 from models.decoder_exp import build_decoder_exp
 from models.sled import build_sled, apply_sled_to_volume
 from simulation.multi_exp_decay import generate_pretrain_data
 from train.pretrain_sled import pretrain_sled
 from train.train import train_model
+from train.custom_train_sled import custom_train_sled
 import keras
 import numpy as np
 
@@ -27,10 +25,11 @@ def main(config):
         mask_3d = nib.load(config['io']['mask_path']).get_fdata()
 
     # data preprocessing
-    if config['fitting']['half_echoes'] == True:
-        data_4d = data_4d[..., 0:config['fitting']['number_of_echoes']*2:2] # even echoes only
-    else:
-        data_4d = data_4d[..., 0:config['fitting']['number_of_echoes']] # truncate later echoes if needed
+    # if config['fitting']['half_echoes'] == True:
+    #     data_4d = data_4d[..., 0:config['fitting']['number_of_echoes']*2:2] # even echoes only
+    # else:
+    #     data_4d = data_4d[..., 0:config['fitting']['number_of_echoes']] # select first n echoes if needed
+    data_4d = data_4d[..., 0:config['fitting']['number_of_echoes']] # select first n echoes if needed
     if iu.check_binary(mask_3d) != True: # binarize the mask if it's not binary
         mask_3d = iu.binarize(mask_3d, config['preprocessing']['mask_threshold'])
     data_masked = iu.mask_4D_data(data_4d, mask_3d)
@@ -45,9 +44,6 @@ def main(config):
 
     # build SLED
     encoder = build_encoder_3pool(config['model']['encoder'], amps_scaling)
-    # encoder = build_encoder_2pool(config['model']['encoder'], amps_scaling)
-    # encoder = build_encoder_3pool_rl(config['model']['encoder'], amps_scaling)
-    # encoder = build_encoder_mpool(config['model']['encoder'], amps_scaling)
     decoder = build_decoder_exp(config['model']['decoder'])
     sled = build_sled(encoder=encoder, decoder=decoder)
     sled.summary()
@@ -55,22 +51,34 @@ def main(config):
     # pretrain SLED with synthetic data
     if config['pretrain']['pretrain_model'] == True:
         # Generate pretrain synthetic data
-        decays, (amps, t2s) = generate_pretrain_data(config['pretrain'])
+        synthetic_decays, (amps, t2s, variance, amps_spectrum) = generate_pretrain_data(config['pretrain'])
+        y = {'multiecho': synthetic_decays, 'amps': amps_spectrum, 'sigma': variance}
         # pretrain SLED
-        pretrain_sled(config['pretrain'], sled, decays, amps, t2s)
+        # sled.load_weights('models/rician.h5')
+        custom_train_sled(sled, synthetic_decays, y, config['training'])
+        # pretrain_sled(config['pretrain'], sled, decays, amps, t2s, variance)
 
-    # train SLED with preprocessed data
-    train_model(sled, config['training'], data_input, data_input)
-    # load the best model (need to be confirmed)
-    if config['training']['save_best_only']:
-        sled.load_weights(config['training']['save_model_path'])
+    # # train SLED with preprocessed data
+    # train_model(sled, config['training'], data_input, data_input)
+    
+    
+    # custom training loop
+    # sled.load_weights('models/rician.h5')
+    # data_input[data_input < 0] = 0 # remove negative values
+    y = {'multiecho': data_input}
+    custom_train_sled(sled, data_input, y, config['training'])
 
+    # # load the best model (need to be confirmed)
+    # if config['training']['ModelCheckpoint']['save_best_only']:
+    #     sled.load_weights(config['training']['ModelCheckpoint']['filepath'])
+    
     # extract latent parameter maps after training
     fitted_signals_map, t2s_map, amps_map, sigma_map = apply_sled_to_volume(sled, data_4d)
     amps_map = iu.amps_sum2one(amps_map)
     mwf_map = iu.mwf_production(t2s_map, amps_map, config['postprocessing']['mwf_cutoff'])
     residuals_map = fitted_signals_map - data_4d
     # mwf_map = mwf_map * mask_3d  # mask the mwf map
+    # mwf_map[np.squeeze(sigma_map)>0.018] = 0.001
 
     # save parameter maps to nifti files and dump the configs as a nifti extension (code=6 specifies a comment as a convention) 
     extension = nib.nifti1.Nifti1Extension(6, yaml.dump(config).encode()) # https://nipy.org/nibabel/devel/biaps/biap_0003.html

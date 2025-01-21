@@ -2,6 +2,7 @@ import tensorflow as tf
 import keras
 from keras.layers import Dense, BatchNormalization, Activation, Add, Input, Lambda
 from tensorflow.keras import regularizers
+from keras.initializers import Constant, Zeros
 import yaml
 import numpy as np
 
@@ -11,24 +12,45 @@ def build_encoder_3pool(config, amps_scaling=1):
     # Set up the model input
     x = Input(shape=(config['input_shape'],))
 
-    # use 3 NNs to estimate 3 t2 times
-    if config['base_nn_t2s']['name'] == 'mlp':
-        t2_my = mlp(config['base_mlp_t2'], x)
-        t2_ie = mlp(config['base_mlp_t2'], x)
-        t2_fr = mlp(config['base_mlp_t2'], x)
-    
-    if config['base_nn_t2s']['name'] == 'resnet':
-        t2_my = resnet(config['base_resnet_t2'], x)
-        t2_ie = resnet(config['base_resnet_t2'], x)
-        t2_fr = resnet(config['base_resnet_t2'], x)
+    if config['fix_t2s'] == True: # a non-parametric model
+        # Directly output the fixed logarithmically spaced T2* values regardless of the input
+        t2s_values = np.exp(
+            np.linspace(
+                np.log(config['t2s_range'][0]), 
+                np.log(config['t2s_range'][1]), 
+                config['latent_shape']
+            )
+        )
+        
+        # # Add a lambda layer to output the fixed T2* values
+        # t2s = Lambda(lambda x: tf.constant(t2s_values, dtype=tf.float32))(x)
+        
+        # Add a dense layer with zero weights and fixed biases
+        t2s = Dense(config['latent_shape'], use_bias=True, trainable=False,
+                        kernel_initializer=Zeros(),  # Weights are zeroed
+                        bias_initializer=Constant(t2s_values),  # Biases are fixed to logarithmic_samples
+                        name='t2s',
+                    )(x)
+        
+    else: # a 3-pool model
+        # use 3 NNs to estimate 3 t2 times
+        if config['base_nn_t2s']['name'] == 'mlp':
+            t2_my = mlp(config['base_mlp_t2'], x)
+            t2_ie = mlp(config['base_mlp_t2'], x)
+            t2_fr = mlp(config['base_mlp_t2'], x)
+        
+        if config['base_nn_t2s']['name'] == 'resnet':
+            t2_my = resnet(config['base_resnet_t2'], x)
+            t2_ie = resnet(config['base_resnet_t2'], x)
+            t2_fr = resnet(config['base_resnet_t2'], x)
 
-    # constrain t2s in corresponding ranges
-    t2_my = t2_my * (config['range_t2_my'][1] - config['range_t2_my'][0]) + config['range_t2_my'][0]
-    t2_ie = t2_ie * (config['range_t2_ie'][1] - config['range_t2_ie'][0]) + config['range_t2_ie'][0]
-    t2_fr = t2_fr * (config['range_t2_fr'][1] - config['range_t2_fr'][0]) + config['range_t2_fr'][0]
+        # constrain t2s in corresponding ranges
+        t2_my = t2_my * (config['range_t2_my'][1] - config['range_t2_my'][0]) + config['range_t2_my'][0]
+        t2_ie = t2_ie * (config['range_t2_ie'][1] - config['range_t2_ie'][0]) + config['range_t2_ie'][0]
+        t2_fr = t2_fr * (config['range_t2_fr'][1] - config['range_t2_fr'][0]) + config['range_t2_fr'][0]
 
-    #  Group 3 t2 times into t2s and assign name
-    t2s = tf.keras.layers.Concatenate(name='t2s')([t2_my, t2_ie, t2_fr])
+        #  Group 3 t2 times into t2s and assign name
+        t2s = tf.keras.layers.Concatenate(name='t2s')([t2_my, t2_ie, t2_fr])
 
     # use 1 NN to estimate 3 amplitudes
     if config['base_nn_amps']['name'] == 'mlp':
@@ -44,6 +66,10 @@ def build_encoder_3pool(config, amps_scaling=1):
         sigma = mlp(config['base_mlp_sigma'], x)
     if config['base_nn_amps']['name'] == 'resnet':
         sigma = resnet(config['base_resnet_sigma'], x)
+    if config['fix_sigma'] == True:
+        sigma = sigma * 0 + config['sigma_value']
+    # Multiply by amps_scaling using a Lambda layer and assign name 'sigma'
+    # sigma = Lambda(lambda x: x * amps_scaling, name='sigma')(sigma)
     
     # Build the encoder model with named outputs
     encoder = keras.Model(inputs=x, outputs={'t2s': t2s, 'amps': amps, 'sigma': sigma}, name="encoder")
@@ -59,10 +85,32 @@ def mlp(config, x, name=None):
         config['num_classes'], 
         activation=config['activation_last_layer'], 
         kernel_regularizer=regularizers.l1(config['l1_reg']), 
+        # kernel_regularizer=regularizers.l2(config['l2_reg']), 
         name=name,
         )(x)
     
     return x
+
+
+# def mlp(config, x, name=None):
+#     # Set up the model architecture
+#     for layer_size in config['hidden_layers']:
+#         x = Dense(
+#             layer_size,
+#             activation=config['activation'],
+#             kernel_initializer='he_normal',  # Options: glorot_uniform, glorot_normal, he_uniform, he_normal
+#             bias_initializer='zeros'  # Options: zeros, ones, random_normal, random_uniform
+#         )(x)
+#     x = Dense(
+#         config['num_classes'],
+#         activation=config['activation_last_layer'],
+#         kernel_regularizer=regularizers.l1(config['l1_reg']),
+#         kernel_initializer='he_normal',
+#         bias_initializer='zeros',
+#         name=name,
+#     )(x)
+    
+#     return x
 
 
 def resnet(config, x):
