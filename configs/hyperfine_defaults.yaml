@@ -2,37 +2,61 @@ io: &paths
   subject_id: &id control_01
   data_path: data/new_data/CALIPR_HC/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808.user_rrdf_20241011_093250_calipr_recon_all.nii
   mask_path: data/new_data/CALIPR_HC/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808.user_rrdf_20241011_093250_calipr_recon_all_mask.nii.gz # if no mask, set to Null or False. However, mask is recommended for better performance
-  save_path: results/rician/test/many_pool_fixed_sigma_
+  pretrained_model_path: &pretrained_model_path models/rician.h5
+  save_folder_path: &save_folder_path results/rician/test/
+  save_prefix: &prefix many_pool_fixed_sigma
   descrip: many pool with fixed sigma # add descriptive text to header (max 80 chars)
-  save_model_path: &model_path models/many_pool_fixed_sigma.h5
 
-fitting:
+sequence:
   number_of_echoes: &num_te 80 # if less than the total number of echoes in the data, the first n echoes will be used
-  # half_echoes: False # if True, the even number of echoes will be used (0,2,4,6,...)
   first_echo_time: &1st_te 0.00431
   echo_spacing: &delta_te 0.00431
-  number_of_pools: &num_pool 100
-  fix_t2s: &fix_t2s True
-  t2s_range: &t2s_range [0.005, 1]
-  range_t2_my: &t2s_my [0.01, 0.03]
-  range_t2_ie: &t2s_ie [0.09, 0.15]
-  range_t2_fr: &t2s_fr [0.5, 1]
+
+fitting:
+  fitting_model: &fitting_model parametric # selections = [parametric, nonparametric]
+  noise_model: &noise_model gaussian # selections = [gaussian, rician]
+  normalization: &normalization True  
+  fix_sigma: &fix_sigma False
+  remove_negative: &remove_negative False # if True, negative values will be set to 0
+  pretrain_model: &pretrain False
+  mask_mwf_map: &mask_mwf_map False
+  load_pretrained_model: &load_pretrained_model False
+  save_maps: &save_maps ['mwf', 'amps'] # selections = ['mwf', 't2s', 'amps', 'residuals', 'fitted_signals']
+
+  number_of_pools: &num_pool 3
   mwf_cutoff: &my_t2_cutoff 0.06
-  noise_model: &noise_model gaussian  # Noise model type ('gaussian' or 'rician')
-  fix_sigma: &fix_sigma True
-  sigma_value: &sigma_value 1
+  train_iterations: &epochs 20
+  batch_size: &batch_size 512
+  
+  parametric: # a typical 3 pool model
+    range_t2_my: &t2s_my [0.01, 0.03]
+    range_t2_ie: &t2s_ie [0.09, 0.15]
+    range_t2_fr: &t2s_fr [0.5, 1]
+    
+  nonparametric:
+    t2s_range: &t2s_range [0.005, 1]
+    basis_t2s: *num_pool
+
+  fix_sigma:
+    sigma_value: &sigma_value 0.1
+
+  load_existing_model:
+    path: models/rician.h5
+
 
 preprocessing:
+  remove_negative: *remove_negative # if True, negative values will be set to 0
+  normalization: *normalization # if True, loss function should be categorical_crossentropy (mse for False)
   mask_threshold: 0.5
-  normalization: &normalization True # if True, loss function should be categorical_crossentropy (mse for False)
   scaling_quantile: 0.99 # to calculate scaling factor and exclude outliers
+
 
 model: &structure
   encoder:
     name: encoder model
+    fitting_model: *fitting_model
     input_shape: *num_te
     latent_shape: *num_pool
-    fix_t2s: *fix_t2s
     t2s_range: *t2s_range
     range_t2_my: *t2s_my
     range_t2_ie: *t2s_ie
@@ -101,20 +125,24 @@ model: &structure
     delta_te: *delta_te
     snr_range: Null # [50, 300]
     normalization: *normalization
+  
+  sled:
+    load_pretrained_model: *load_pretrained_model
+    pretrained_model_path: *pretrained_model_path
 
 pretrain:
-  pretrain_model: False
+  pretrain_model: *pretrain
+  fitting_model: *fitting_model
   number_of_echoes: *num_te 
   first_echo_time: *1st_te
   echo_spacing: *delta_te
-  number_of_pools: *num_pool
   number_of_samples: 100000
-  t2_ranges: [*t2s_my, *t2s_ie, *t2s_fr]
+  t2_ranges: [*t2s_my, *t2s_ie, *t2s_fr] # simulate for 3 pools
   amplitude_ranges: [[0,0.3],[0,1],[0,0.05]] # for white and grey matter only, csf is simulated independently
   snr_range: &snr_range [30, 100]
   t2_basis_range: *t2s_range  # bigger range to capture the tails
-  n_t2_points: *num_pool          # number of log-spaced points in the basis
-  sigma_gauss: 1
+  number_of_t2_basis: *num_pool  # number of log-spaced points in the basis
+  gauss_peak_sigma: 1
   csf_sim: True # if True, simulate CSF independently
   csf_n_samples: 20000
   # loss: {'t2s': 'categorical_crossentropy', 'amps': 'categorical_crossentropy', 'fitted_signals': 'rician_nll_loss'}
@@ -129,8 +157,8 @@ pretrain:
 
 # Training Configuration
 training:
-  batch_size: 512            # Number of samples per gradient update
-  epochs: 30                 # Total number of training epochs
+  batch_size: *batch_size            # Number of samples per gradient update
+  epochs: *epochs                 # Total number of training epochs
 
   optimizer:               # Optimizer settings
     learning_rate: 0.001    # Initial learning rate
@@ -153,7 +181,8 @@ training:
     verbose: 1            # Verbosity mode (0: silent, 1: print updates)
 
   ModelCheckpoint:         # Model Checkpointing configuration
-    filepath: *model_path  # Path to save the model weights
+    save_folder_path: *save_folder_path  # Folder path to save the model weights
+    prefix: *prefix       # Prefix for the saved model files
     monitor: "epoch_loss"                          # Metric to monitor for saving the best model
     save_best_only: True                            # Whether to save only the best model
     verbose: 1                                      # Verbosity mode (0: silent, 1: print updates)
@@ -190,12 +219,14 @@ training:
 #   save_best_only: True
 
   # paths
-  io: *paths
-  log_path: logs/training.log
-  save_model_path: *model_path
+  # io: *paths
+  # log_path: logs/training.log
+  # save_model_path: *model_path
+
 
 
 postprocessing:
   mwf_cutoff: *my_t2_cutoff
-  save_residuals: True
+  mask_mwf_map: *mask_mwf_map
+  save_maps: *save_maps 
 

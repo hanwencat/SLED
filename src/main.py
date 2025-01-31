@@ -1,103 +1,50 @@
-import nibabel as nib
 import yaml
-import utility.image_util as iu
+import keras
 from models.encoder_3pool import build_encoder_3pool
 from models.decoder_exp import build_decoder_exp
-from models.sled import build_sled, apply_sled_to_volume
+from models.sled import build_sled
 from simulation.multi_exp_decay import generate_pretrain_data
-from train.pretrain_sled import pretrain_sled
-from train.train import train_model
 from train.custom_train_sled import custom_train_sled
-import keras
-import numpy as np
+from utility.load_data import load_data 
+from utility.postprocessing import calculate_maps, save_results
 
-
-def main(config):
-    # read data from file
-    scan = nib.load(config['io']['data_path'])
-    data_4d = scan.get_fdata()
-    affine = scan.affine
-    header = scan.header
-    # query the config file, if there is a mask_path, then load the mask, otherwise, use the whole brain
-    if config['io']['mask_path'] == None or False:
-        mask_3d = np.ones(data_4d.shape[0:3])
-    else:
-        mask_3d = nib.load(config['io']['mask_path']).get_fdata()
-
-    # data preprocessing
-    # if config['fitting']['half_echoes'] == True:
-    #     data_4d = data_4d[..., 0:config['fitting']['number_of_echoes']*2:2] # even echoes only
-    # else:
-    #     data_4d = data_4d[..., 0:config['fitting']['number_of_echoes']] # select first n echoes if needed
-    data_4d = data_4d[..., 0:config['fitting']['number_of_echoes']] # select first n echoes if needed
-    if iu.check_binary(mask_3d) != True: # binarize the mask if it's not binary
-        mask_3d = iu.binarize(mask_3d, config['preprocessing']['mask_threshold'])
-    data_masked = iu.mask_4D_data(data_4d, mask_3d)
-    data_flat, data_flat_norm = iu.flatten_filter_normalize(data_masked)
-    if config['preprocessing']['normalization'] == True:
-        data_input = data_flat_norm
-        data_4d = data_4d / data_4d[..., 0:1] # normalize the 4D data, may contain zero division
-        amps_scaling = 1
-    else:
-        data_input = data_flat
-        amps_scaling = np.quantile(data_input, config['preprocessing']['scaling_quantile'], axis=0)[0] # for scaling the amps NN in the encoder
+def main():
+    # get configuration for the fitting from the config file
+    with open('configs/hyperfine_defaults.yaml') as f:
+        config = yaml.safe_load(f)
+    
+    # load and preproces data
+    data_input, data_4d, mask_3d, affine, header, amps_scaling = load_data(config)
 
     # build SLED
     encoder = build_encoder_3pool(config['model']['encoder'], amps_scaling)
     decoder = build_decoder_exp(config['model']['decoder'])
-    sled = build_sled(encoder=encoder, decoder=decoder)
+    sled = build_sled(encoder=encoder, decoder=decoder, config=config['model']['sled'])
     sled.summary()
-
-    # pretrain SLED with synthetic data
-    if config['pretrain']['pretrain_model'] == True:
-        # Generate pretrain synthetic data
-        synthetic_decays, (amps, t2s, variance, amps_spectrum) = generate_pretrain_data(config['pretrain'])
-        y = {'multiecho': synthetic_decays, 'amps': amps_spectrum, 'sigma': variance}
-        # pretrain SLED
-        # sled.load_weights('models/rician.h5')
-        custom_train_sled(sled, synthetic_decays, y, config['training'])
-        # pretrain_sled(config['pretrain'], sled, decays, amps, t2s, variance)
-
-    # # train SLED with preprocessed data
-    # train_model(sled, config['training'], data_input, data_input)
     
-    
-    # custom training loop
-    # sled.load_weights('models/rician.h5')
-    # data_input[data_input < 0] = 0 # remove negative values
-    y = {'multiecho': data_input}
+    # Train SLED with synthetic data
+    if config['fitting']['pretrain_model'] == True:
+        data_sim = generate_pretrain_data(config['pretrain'])
+        y = {
+            'multiecho': data_sim['decays'],
+            'amps': data_sim['amplitudes'] if config['fitting']['fitting_model']=='parametric' else data_sim['amps_spectrum'],
+            'sigma': data_sim['variance'],
+        }
+        custom_train_sled(sled, data_sim['decays'], y, config['training'])
+
+    # Train SLED with real data
+    y = {'multiecho': data_input} # make y a label dictionary
     custom_train_sled(sled, data_input, y, config['training'])
-
-    # # load the best model (need to be confirmed)
-    # if config['training']['ModelCheckpoint']['save_best_only']:
-    #     sled.load_weights(config['training']['ModelCheckpoint']['filepath'])
     
-    # extract latent parameter maps after training
-    fitted_signals_map, t2s_map, amps_map, sigma_map = apply_sled_to_volume(sled, data_4d)
-    amps_map = iu.amps_sum2one(amps_map)
-    mwf_map = iu.mwf_production(t2s_map, amps_map, config['postprocessing']['mwf_cutoff'])
-    residuals_map = fitted_signals_map - data_4d
-    # mwf_map = mwf_map * mask_3d  # mask the mwf map
-    # mwf_map[np.squeeze(sigma_map)>0.018] = 0.001
+    # calculate maps once SLED is trained
+    results = calculate_maps(sled, data_4d, mask_3d, config['postprocessing'])
 
-    # save parameter maps to nifti files and dump the configs as a nifti extension (code=6 specifies a comment as a convention) 
-    extension = nib.nifti1.Nifti1Extension(6, yaml.dump(config).encode()) # https://nipy.org/nibabel/devel/biaps/biap_0003.html
-    header.extensions.append(extension)
-    header['descrip']=config['io']['descrip']
-    nib.save(nib.Nifti1Image(t2s_map, affine, header), config['io']['save_path']+'t2s.nii.gz')
-    nib.save(nib.Nifti1Image(amps_map, affine, header), config['io']['save_path']+'amps.nii.gz')
-    nib.save(nib.Nifti1Image(mwf_map, affine, header), config['io']['save_path']+'mwf.nii.gz')
-    nib.save(nib.Nifti1Image(sigma_map, affine, header), config['io']['save_path']+'sigma.nii.gz')
-    if config['postprocessing']['save_residuals']:
-        nib.save(nib.Nifti1Image(residuals_map, affine, header), config['io']['save_path']+'residuals.nii.gz')  
+    # save calcualted maps to nifti files
+    save_results(results, affine, header, config)
 
     # clear session
     keras.backend.clear_session()
 
 
-if __name__ == '__main__':
-
-    with open('configs/hyperfine_defaults.yaml') as f:
-        config = yaml.safe_load(f)
-    
-    main(config)
+if __name__ == '__main__':  
+    main()

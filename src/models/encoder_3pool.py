@@ -12,7 +12,7 @@ def build_encoder_3pool(config, amps_scaling=1):
     # Set up the model input
     x = Input(shape=(config['input_shape'],))
 
-    if config['fix_t2s'] == True: # a non-parametric model
+    if config['fitting_model'] == 'nonparametric': # a non-parametric fitting like NNLS
         # Directly output the fixed logarithmically spaced T2* values regardless of the input
         t2s_values = np.exp(
             np.linspace(
@@ -25,12 +25,13 @@ def build_encoder_3pool(config, amps_scaling=1):
         # # Add a lambda layer to output the fixed T2* values
         # t2s = Lambda(lambda x: tf.constant(t2s_values, dtype=tf.float32))(x)
         
-        # Add a dense layer with zero weights and fixed biases
-        t2s = Dense(config['latent_shape'], use_bias=True, trainable=False,
-                        kernel_initializer=Zeros(),  # Weights are zeroed
-                        bias_initializer=Constant(t2s_values),  # Biases are fixed to logarithmic_samples
-                        name='t2s',
-                    )(x)
+        # Add a dense layer with fixed weights and biases
+        t2s_layer = Dense(config['latent_shape'], use_bias=True,
+                kernel_initializer=Zeros(),
+                bias_initializer=Constant(t2s_values),
+                name='t2s')
+        t2s = t2s_layer(x)
+        t2s_layer.trainable = False  # Make the entire layer untrainable
         
     else: # a 3-pool model
         # use 3 NNs to estimate 3 t2 times
@@ -63,9 +64,9 @@ def build_encoder_3pool(config, amps_scaling=1):
     
     # use 1 NN to estimate the noise variance sigma
     if config['base_nn_amps']['name'] == 'mlp':
-        sigma = mlp(config['base_mlp_sigma'], x)
+        sigma = mlp(config['base_mlp_sigma'], x, name='sigma')
     if config['base_nn_amps']['name'] == 'resnet':
-        sigma = resnet(config['base_resnet_sigma'], x)
+        sigma = resnet(config['base_resnet_sigma'], x, name='sigma')
     if config['fix_sigma'] == True:
         sigma = sigma * 0 + config['sigma_value']
     # Multiply by amps_scaling using a Lambda layer and assign name 'sigma'
@@ -90,27 +91,6 @@ def mlp(config, x, name=None):
         )(x)
     
     return x
-
-
-# def mlp(config, x, name=None):
-#     # Set up the model architecture
-#     for layer_size in config['hidden_layers']:
-#         x = Dense(
-#             layer_size,
-#             activation=config['activation'],
-#             kernel_initializer='he_normal',  # Options: glorot_uniform, glorot_normal, he_uniform, he_normal
-#             bias_initializer='zeros'  # Options: zeros, ones, random_normal, random_uniform
-#         )(x)
-#     x = Dense(
-#         config['num_classes'],
-#         activation=config['activation_last_layer'],
-#         kernel_regularizer=regularizers.l1(config['l1_reg']),
-#         kernel_initializer='he_normal',
-#         bias_initializer='zeros',
-#         name=name,
-#     )(x)
-    
-#     return x
 
 
 def resnet(config, x):

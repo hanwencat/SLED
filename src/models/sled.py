@@ -1,10 +1,10 @@
 from keras.models import Model
-import tensorflow as tf
-import numpy as np
-import yaml
+# import tensorflow as tf
+# import numpy as np
+# import yaml
 
 
-def build_sled(encoder, decoder):
+def build_sled(encoder, decoder, config):
     """
     Builds a SLED model by connecting an encoder and decoder model.
 
@@ -30,6 +30,12 @@ def build_sled(encoder, decoder):
         outputs={'multiecho':multiecho, 't2s':t2s, 'amps':amps, 'sigma':sigma}, 
         name='SLED',
         )
+    
+    if config['load_pretrained_model'] == True:
+        sled.load_weights(config['pretrained_model_path'])
+        print('##################################################')
+        print('Pretrained model loaded from: ', config['pretrained_model_path'])
+        print('##################################################')
 
     return sled
 

@@ -69,7 +69,9 @@ def custom_train_sled(model, x, y, config):
     
     # Initialize ModelCheckpoint parameters
     checkpoint = config.get('ModelCheckpoint', {})
-    checkpoint_filepath = checkpoint.get('filepath', 'model_checkpoint.h5')
+    save_folder_path = checkpoint.get('save_folder_path', 'model/')
+    prefix = checkpoint.get('prefix', 'best')
+    checkpoint_filepath = save_folder_path + '/' + prefix + '_model.h5'
     checkpoint_monitor = checkpoint.get('monitor', 'epoch_loss')
     checkpoint_save_best_only = checkpoint.get('save_best_only', True)
     checkpoint_verbose = checkpoint.get('verbose', 1)
@@ -176,6 +178,10 @@ def custom_train_sled(model, x, y, config):
             if checkpoint_verbose:
                 print(f"Model checkpoint saved at epoch {epoch+1}.")
 
+    # Load best model weights if save_best_only is True
+    if checkpoint_save_best_only:
+        model.load_weights(checkpoint_filepath)
+    
                 
 
 # def custom_train_sled(model, x, y, epochs=10, lr=1e-3):

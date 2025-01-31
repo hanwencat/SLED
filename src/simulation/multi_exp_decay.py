@@ -94,24 +94,23 @@ def generate_pretrain_data(config):
     - amplitudes:   (num_samples, pools)
     - t2_times:     (num_samples, pools)
     - variance:     (num_samples,)
-    - amps_spectrum:(num_samples, n_t2_points)
+    - amps_spectrum:(num_samples, number_of_t2_basis)
     """
 
     # 1) Load parameters
     num_samples       = config['number_of_samples']
-    pools             = config['number_of_pools']           # e.g. 3
-    t2_ranges         = config['t2_ranges']                 # e.g. [(0.01,0.02),(0.04,0.06),(0.3,0.5)]
-    amplitude_ranges  = config['amplitude_ranges']          # e.g. [(0.1,0.5),(0.1,0.5),(0.1,0.4)]
+    t2_ranges         = config['t2_ranges']                 # e.g. [(0.01,0.02),(0.04,0.06),(0.3,0.5)] (3-pool t2s in second)
+    amplitude_ranges  = config['amplitude_ranges']          # e.g. [(0.1,0.5),(0.1,0.5),(0.1,0.4)] (3-pool amplitudes)
     snr_range         = config['snr_range']                 # e.g. [50,150]
 
-    first_echo_time   = config['first_echo_time']           # e.g. 10
-    echo_spacing      = config['echo_spacing']              # e.g. 10
+    first_echo_time   = config['first_echo_time']           # e.g. 0.01 (in second)
+    echo_spacing      = config['echo_spacing']              # e.g. 0.01 (in second)
     num_echoes        = config['number_of_echoes']          # e.g. 32
 
     # T2 basis range (can be larger than pool-specific T2 ranges)
-    t2_basis_min, t2_basis_max = config['t2_basis_range']   # e.g. (0.005, 2.0)
-    n_t2_points       = config['n_t2_points']               # e.g. 100
-    sigma_gauss       = config.get('sigma_gauss', 1.0)      # log-scale Gaussian width
+    t2_basis_min, t2_basis_max = config['t2_basis_range']                   # e.g. (0.005, 2.0)
+    number_of_t2_basis         = config['number_of_pools']               # e.g. 100
+    gauss_peak_sigma           = config.get('gauss_peak_sigma', 1.0)        # log-scale Gaussian width
 
     # Echo times array
     echo_times = np.arange(
@@ -140,11 +139,11 @@ def generate_pretrain_data(config):
     SNRs = np.random.uniform(snr_range[0], snr_range[1], num_samples)
 
 
-        # If CSF simulations are requested
+    # If CSF simulations are requested
     if config['csf_sim']:
         csf_n_samples = config['csf_n_samples']
         
-        # Fixed amplitudes for CSF: [0, 0, 1]
+        # Fixed amplitudes for CSF: [0, 0, 1] (only the free water pool)
         csf_amplitudes = np.tile([0, 0, 1], (csf_n_samples, 1))
         
         # Generate T2 times and SNR for CSF samples
@@ -165,17 +164,17 @@ def generate_pretrain_data(config):
     t2_basis = np.logspace(
         np.log10(t2_basis_min),
         np.log10(t2_basis_max),
-        n_t2_points
+        number_of_t2_basis
     )
 
     # 4) Vectorized Gaussian embedding
     # ---------------------------------
-    # We interpret t2_basis[i] = t2_basis_min * base^i for i in [0..n_t2_points-1],
-    # where base = (t2_basis_max / t2_basis_min)^(1 / (n_t2_points-1)).
+    # We interpret t2_basis[i] = t2_basis_min * base^i for i in [0..number_of_t2_basis-1],
+    # where base = (t2_basis_max / t2_basis_min)^(1 / (number_of_t2_basis-1)).
 
     T2_min_basis = t2_basis[0]
     T2_max_basis = t2_basis[-1]
-    n_points = n_t2_points
+    n_points = number_of_t2_basis
 
     base = (T2_max_basis / T2_min_basis) ** (1 / (n_points - 1))
 
@@ -193,9 +192,9 @@ def generate_pretrain_data(config):
     t2_basis_index_3d = t2_basis_index[np.newaxis, np.newaxis, :]
 
     # Unnormalized Gaussians => shape (num_samples, pools, n_points)
-    factor = 1.0 / (sigma_gauss * np.sqrt(2 * math.pi))
+    factor = 1.0 / (gauss_peak_sigma * np.sqrt(2 * math.pi))
     dist_unnorm = factor * np.exp(
-        -((t2_basis_index_3d - peak_indices_3d)**2) / (2 * sigma_gauss**2)
+        -((t2_basis_index_3d - peak_indices_3d)**2) / (2 * gauss_peak_sigma**2)
     )
 
     # Threshold small values
@@ -245,6 +244,13 @@ def generate_pretrain_data(config):
     decays_noisy = np.sqrt((decays + noise_real)**2 + noise_imag**2)
     decays_noisy /= decays_noisy[:, [0]]  # normalize by first echo
 
-    # 7) Return desired outputs:
-    #    (decays_noisy, (amplitudes, t2_times, variance, amps_spectrum))
-    return decays_noisy, (amplitudes, t2_times, variance, amps_spectrum)
+    # 7) Return a dictionary containing all outputs
+    return {
+        'decays': decays_noisy,
+        'amplitudes': amplitudes,
+        't2_times': t2_times,
+        'variance': variance,
+        'amps_spectrum': amps_spectrum
+    }
+
+    
