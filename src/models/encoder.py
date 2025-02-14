@@ -1,7 +1,7 @@
 import tensorflow as tf
 import keras
 from keras.layers import Dense, BatchNormalization, Activation, Add, Input, Lambda
-from tensorflow.keras import regularizers
+from keras import regularizers
 from keras.initializers import Constant, Zeros
 import yaml
 import numpy as np
@@ -132,12 +132,12 @@ def apply_encoder(encoder, volume):
     return t2s_map, amps_map
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     
-    # Load hyperparameters from YAML config file
-    config_path = 'configs/defaults.yml' 
-    with open(config_path, 'r') as file:
-        config = yaml.safe_load(file)
+#     # Load hyperparameters from YAML config file
+#     config_path = 'configs/defaults.yml' 
+#     with open(config_path, 'r') as file:
+#         config = yaml.safe_load(file)
 
-    encoder = build_encoder_3pool(config['model']['encoder'], amps_scaling=1)
-    encoder.summary()
+#     encoder = build_encoder(config['model']['encoder'], amps_scaling=1)
+#     encoder.summary()
