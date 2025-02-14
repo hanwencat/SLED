@@ -7,7 +7,7 @@ import yaml
 import numpy as np
 
 
-def build_encoder_3pool(config, amps_scaling=1):
+def build_encoder(config, amps_scaling=1):
     
     # Set up the model input
     x = Input(shape=(config['input_shape'],))

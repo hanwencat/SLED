@@ -1,6 +1,6 @@
 import yaml
 import keras
-from models.encoder_3pool import build_encoder_3pool
+from models.encoder import build_encoder
 from models.decoder_exp import build_decoder_exp
 from models.sled import build_sled
 from simulation.multi_exp_decay import generate_pretrain_data
@@ -17,7 +17,7 @@ def main():
     data_input, data_4d, mask_3d, affine, header, amps_scaling = load_data(config)
 
     # build SLED
-    encoder = build_encoder_3pool(config['model']['encoder'], amps_scaling)
+    encoder = build_encoder(config['model']['encoder'], amps_scaling)
     decoder = build_decoder_exp(config['model']['decoder'])
     sled = build_sled(encoder=encoder, decoder=decoder, config=config['model']['sled'])
     sled.summary()
