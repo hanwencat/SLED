@@ -1,43 +1,62 @@
 from keras.models import Model
-# import tensorflow as tf
-# import numpy as np
-# import yaml
-
+import numpy as np
 
 def build_sled(encoder, decoder, config):
     """
-    Builds a SLED model by connecting an encoder and decoder model.
-
+    Build a SLED model by connecting an encoder and a decoder.
+    
     Args:
-        encoder: A Keras model that takes in an input and outputs a compressed representation.
-        decoder: A Keras model that takes in a compressed representation and outputs a reconstructed output.
-
+        encoder: A Keras model that takes an input and outputs a dictionary of representations.
+        decoder: A Keras model that expects a list of two inputs ([t2s, amps]) and outputs the reconstructed multiecho signal.
+                 (It is assumed that any necessary wrapping into a nested submodel has been done outside this function.)
+        config: A configuration dictionary with keys like 'decay_model', 'load_pretrained_model', etc.
+    
     Returns:
-        A Keras model that connects the encoder and decoder.
+        A Keras model that connects the encoder and the decoder.
     """
-
-    # Define the inputs and outputs of the model
-    input = encoder.inputs
-    t2s, amps, sigma = encoder.output['t2s'], encoder.output['amps'], encoder.output['sigma']
-    multiecho = decoder([t2s, amps])
-
-    # # Concatenate along the last axis (-1) for single output approach
-    # multiecho_with_sigma = tf.concat([multiecho, sigma], axis=-1)
+    # Use the encoder's input (assuming a single input tensor)
+    encoder_input = encoder.inputs
+    encoder_outputs = encoder(encoder_input)
     
-    # Create a Keras model that connects the encoder and decoder
-    sled = Model(
-        inputs=input, 
-        outputs={'multiecho':multiecho, 't2s':t2s, 'amps':amps, 'sigma':sigma}, 
-        name='SLED',
-        )
+    # Depending on the decay model, extract the appropriate outputs from the encoder.
+    if config['decay_model'] == 'epg':
+        t2s = encoder_outputs['t2s']
+        amps = encoder_outputs['amps']
+        sigma = encoder_outputs['sigma']
+        fa = encoder_outputs['fa']
+        multiecho = decoder([t2s, amps])
+        outputs = {
+            'multiecho': multiecho,
+            't2s': t2s,
+            'amps': amps,
+            'sigma': sigma,
+            'fa': fa
+        }
+    elif config['decay_model'] == 'exp':
+        t2s = encoder_outputs['t2s']
+        amps = encoder_outputs['amps']
+        sigma = encoder_outputs['sigma']
+        multiecho = decoder([t2s, amps])
+        outputs = {
+            'multiecho': multiecho,
+            't2s': t2s,
+            'amps': amps,
+            'sigma': sigma
+        }
+    else:
+        raise ValueError("Unknown decay_model: {}".format(config['decay_model']))
     
-    if config['load_pretrained_model'] == True:
-        sled.load_weights(config['pretrained_model_path'])
-        print('##################################################')
-        print('Pretrained model loaded from: ', config['pretrained_model_path'])
-        print('##################################################')
-
-    return sled
+    # Create the final SLED model.
+    sled_model = Model(inputs=encoder_input, outputs=outputs, name='SLED')
+    
+    # Optionally load pretrained weights.
+    if config.get('load_pretrained_model', False):
+        sled_model.load_weights(config['pretrained_model_path'])
+        print("##################################################")
+        print("Pretrained model loaded from:", config['pretrained_model_path'])
+        print("##################################################")
+    
+    return sled_model
 
 
 def apply_sled_to_volume(sled, volume):
@@ -45,64 +64,32 @@ def apply_sled_to_volume(sled, volume):
     Apply the trained SLED model to a 4D volume.
     
     Args:
-        sled: The trained SLED model. It should output a dictionary with
-              keys 'multiecho', 't2s', and 'amps'.
+        sled: The trained SLED model. It outputs a dictionary with keys 'multiecho', 't2s', 'amps', and 'sigma'.
         volume: A 4D numpy array of shape (X, Y, Z, T).
-
+    
     Returns:
         multiecho_map: A numpy array of shape (X, Y, Z, T) with the fitted multiecho signals.
         t2s_map: A numpy array of shape (X, Y, Z, num_classes) with T2 times.
         amps_map: A numpy array of shape (X, Y, Z, num_classes) with amplitudes.
         sigma_map: A numpy array of shape (X, Y, Z, 1) with the noise standard deviation.
     """
-    # Flatten the volume from (X, Y, Z, T) to (N, T)
-    # where N = X * Y * Z
+    # Flatten the volume from (X, Y, Z, T) to (N, T), where N = X * Y * Z.
     flattened_volume = volume.reshape(-1, volume.shape[-1])
     
-    # Predict using the SLED model
+    # Predict using the SLED model.
     preds = sled.predict(flattened_volume, verbose=0)
     
-    # Extract predictions
-    multiecho = preds['multiecho']  # shape: (N, T)
-    t2s = preds['t2s']                        # shape: (N, num_classes)
-    amps = preds['amps']                      # shape: (N, num_classes)
-    sigma = preds['sigma']            # shape: (N, 1)
-    # sigma = np.exp(log_sigma)                 # ensure positivity
+    multiecho = preds['multiecho']  # Shape: (N, T)
+    t2s = preds['t2s']              # Shape: (N, num_classes)
+    amps = preds['amps']            # Shape: (N, num_classes)
+    sigma = preds['sigma']          # Shape: (N, 1)
+    fa = preds['fa']          # Shape: (N, 1)
     
-    # single output approach
-    # multiecho = multiecho_with_sigma[..., :-1]  # shape: (N, T)
-    # sigma = multiecho_with_sigma[...,-1]                    # shape: (N, 1)
-    
-    # Reshape back to original volume dimensions
-    # multiecho_map: (X, Y, Z, T)
+    # Reshape predictions back to the original volume dimensions.
     multiecho_map = multiecho.reshape(volume.shape)
-    
-    # t2s_map: (X, Y, Z, num_classes)
     t2s_map = t2s.reshape(volume.shape[:-1] + (t2s.shape[-1],))
-    
-    # amps_map: (X, Y, Z, num_classes)
     amps_map = amps.reshape(volume.shape[:-1] + (amps.shape[-1],))
-    
-    # sigma_map: (X, Y, Z, 1)
     sigma_map = sigma.reshape(volume.shape[:-1] + (1,))
-
-    return multiecho_map, t2s_map, amps_map, sigma_map
-
-
-# if __name__ == "__main__":
-#     from encoder_mpool import build_encoder_mpool
-#     from decoder_exp import build_decoder_exp
-
-#     # Load hyperparameters from YAML config file
-#     config_path = 'configs/mpool.yaml' 
-#     with open(config_path, 'r') as file:
-#         config = yaml.safe_load(file)
-
-#     encoder = build_encoder_mpool(config['model']['encoder'], amps_scaling=1)
-#     # encoder.summary()
-
-#     decoder = build_decoder_exp(config['model']['decoder'])
-#     # decoder.summary()
-
-#     sled = build_sled(encoder=encoder, decoder=decoder)
-#     sled.summary()
+    fa_map = fa.reshape(volume.shape[:-1] + (1,))
+    
+    return multiecho_map, t2s_map, amps_map, sigma_map, fa_map

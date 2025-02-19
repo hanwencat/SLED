@@ -20,7 +20,7 @@ def main():
     encoder = build_encoder(config['model']['encoder'], amps_scaling)
     decoder = build_decoder_exp(config['model']['decoder'])
     sled = build_sled(encoder=encoder, decoder=decoder, config=config['model']['sled'])
-    sled.summary()
+    sled.summary(expand_nested=True)
     
     # Train SLED with synthetic data
     if config['fitting']['pretrain_model'] == True:

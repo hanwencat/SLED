@@ -14,6 +14,7 @@ def custom_train_sled(model, x, y, config):
         - 't2s': NumPy array of shape (N,)
         - 'amps': NumPy array of shape (N,)
         - 'sigma': NumPy array of shape (N,)
+        - 'fa': NumPy array of shape (N,)
     - config: Configuration dictionary containing training parameters and callback settings
     """
     
@@ -42,6 +43,7 @@ def custom_train_sled(model, x, y, config):
         't2s': tf.keras.losses.MeanAbsoluteError(),
         'amps': tf.keras.losses.MeanAbsoluteError(),
         'sigma': tf.keras.losses.MeanAbsoluteError(),
+        'fa': tf.keras.losses.MeanAbsoluteError(),
     }
     
     # Determine which labels to train on based on y's keys

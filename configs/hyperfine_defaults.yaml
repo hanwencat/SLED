@@ -14,7 +14,8 @@ sequence:
 
 fitting:
   fitting_model: &fitting_model parametric # selections = [parametric, nonparametric]
-  noise_model: &noise_model gaussian # selections = [gaussian, rician]
+  decay_model: &decay_model epg # selections = [exp, epg]
+  noise_model: &noise_model rician # selections = [gaussian, rician]
   normalization: &normalization True  
   fix_sigma: &fix_sigma False
   remove_negative: &remove_negative False # if True, negative values will be set to 0
@@ -55,6 +56,7 @@ model: &structure
   encoder:
     name: encoder model
     fitting_model: *fitting_model
+    decay_model: *decay_model
     input_shape: *num_te
     latent_shape: *num_pool
     t2s_range: *t2s_range
@@ -65,6 +67,8 @@ model: &structure
     sigma_value: *sigma_value
 
     # encoder architecture
+    nn_base: mlp # selections = [mlp, resnet]
+
     base_nn_t2s:
       name: mlp # selections = [mlp, resnet]
 
@@ -95,6 +99,14 @@ model: &structure
       l1_reg: 0
       l2_reg: 0
 
+    base_mlp_fa:
+      hidden_layers: [256, 128]
+      num_classes: 1
+      activation: sigmoid
+      activation_last_layer: sigmoid
+      l1_reg: 0
+      l2_reg: 0
+
     base_resnet_t2: 
       hidden_layers_head: [128]
       num_res_blocks: 2
@@ -117,6 +129,28 @@ model: &structure
       l1_reg: 0
       l2_reg: 0
     
+    base_resnet_sigma: 
+      hidden_layers_head: [128]
+      num_res_blocks: 2
+      res_block_size: [256, 256]
+      hidden_layers_tail: [128]
+      num_classes: *num_pool
+      activation: sigmoid
+      activation_last_layer: softmax
+      l1_reg: 0
+      l2_reg: 0
+
+    base_resnet_fa: 
+      hidden_layers_head: [128]
+      num_res_blocks: 2
+      res_block_size: [256, 256]
+      hidden_layers_tail: [128]
+      num_classes: *num_pool
+      activation: sigmoid
+      activation_last_layer: softmax
+      l1_reg: 0
+      l2_reg: 0
+
   decoder:
     name: decoder_exp
     num_classes: *num_pool
@@ -127,6 +161,7 @@ model: &structure
     normalization: *normalization
   
   sled:
+    decay_model: *decay_model
     load_pretrained_model: *load_pretrained_model
     pretrained_model_path: *pretrained_model_path
 
