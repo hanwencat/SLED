@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 from keras.layers import Layer
 from keras import backend as K
+from utility.add_noise_tf import add_rayleigh_noise
 
 
 def build_decoder_exp(config):
@@ -64,18 +65,11 @@ def signal_model_exp(args):
     signal = tf.squeeze(tf.linalg.matmul(kernel_matrix, amps), axis=-1)
     
     # add noise according to the snr range
+    # add noise according to the snr range
     if snr_range == None:
         signal = signal
     else:
-        # random noise
-        snr = tf.random.uniform((tf.shape(signal)[0],1), snr_range[0], snr_range[1]) 
-        # use the mean intensity of the first echo as the reference
-        scale_factor = tf.reduce_mean(signal, 0)[0] 
-        # calculate variance (https://www.statisticshowto.com/rayleigh-distribution/)
-        variance = scale_factor*1/(snr * np.sqrt(np.pi/2))
-        noise_real = tf.random.normal(tf.shape(signal), 0, variance) # tf.shape used here to handle 'None' shape
-        noise_img = tf.random.normal(tf.shape(signal), 0, variance)
-        signal = ((noise_real+signal)**2 + noise_img**2)**0.5 
+        signal = add_rayleigh_noise(signal, snr_range)
     
     # normalize to the first echo    
     if normalization == True:

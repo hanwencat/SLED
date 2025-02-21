@@ -4,7 +4,14 @@ import nibabel as nib
 import yaml
 
 def calculate_maps(sled, data_4d, mask_3d, config):
-    fitted_signals_map, t2s_map, amps_map, sigma_map = apply_sled_to_volume(sled, data_4d)
+    maps = apply_sled_to_volume(sled, data_4d, config)
+    amps_map = maps['amps_map']
+    t2s_map = maps['t2s_map']
+    sigma_map = maps['sigma_map']
+    fitted_signals_map = maps['multiecho_map']
+    if config['decay_model'] == 'epg':
+        fa_map = maps['fa_map']
+    
     amps_map = iu.amps_sum2one(amps_map)
     mwf_map = iu.mwf_production(t2s_map, amps_map, config['mwf_cutoff'])
     residuals_map = fitted_signals_map - data_4d
@@ -18,6 +25,8 @@ def calculate_maps(sled, data_4d, mask_3d, config):
         'mwf_map': mwf_map,
         'residuals_map': residuals_map,
         }
+    if config['decay_model'] == 'epg':
+        results['fa_map'] = fa_map
     return results
     
     

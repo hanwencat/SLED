@@ -24,7 +24,7 @@ def build_sled(encoder, decoder, config):
         amps = encoder_outputs['amps']
         sigma = encoder_outputs['sigma']
         fa = encoder_outputs['fa']
-        multiecho = decoder([t2s, amps])
+        multiecho = decoder([t2s, amps, fa])
         outputs = {
             'multiecho': multiecho,
             't2s': t2s,
@@ -59,7 +59,7 @@ def build_sled(encoder, decoder, config):
     return sled_model
 
 
-def apply_sled_to_volume(sled, volume):
+def apply_sled_to_volume(sled, volume, config):
     """
     Apply the trained SLED model to a 4D volume.
     
@@ -77,19 +77,31 @@ def apply_sled_to_volume(sled, volume):
     flattened_volume = volume.reshape(-1, volume.shape[-1])
     
     # Predict using the SLED model.
+    sled.summary()
     preds = sled.predict(flattened_volume, verbose=0)
     
     multiecho = preds['multiecho']  # Shape: (N, T)
     t2s = preds['t2s']              # Shape: (N, num_classes)
     amps = preds['amps']            # Shape: (N, num_classes)
     sigma = preds['sigma']          # Shape: (N, 1)
-    fa = preds['fa']          # Shape: (N, 1)
+    
     
     # Reshape predictions back to the original volume dimensions.
     multiecho_map = multiecho.reshape(volume.shape)
     t2s_map = t2s.reshape(volume.shape[:-1] + (t2s.shape[-1],))
     amps_map = amps.reshape(volume.shape[:-1] + (amps.shape[-1],))
     sigma_map = sigma.reshape(volume.shape[:-1] + (1,))
-    fa_map = fa.reshape(volume.shape[:-1] + (1,))
     
-    return multiecho_map, t2s_map, amps_map, sigma_map, fa_map
+    maps = {
+        'multiecho_map': multiecho_map,
+        't2s_map': t2s_map,
+        'amps_map': amps_map,
+        'sigma_map': sigma_map,
+    }
+    
+    if config['decay_model'] == 'epg':
+        fa = preds['fa']          # Shape: (N, 1)
+        fa_map = fa.reshape(volume.shape[:-1] + (1,))
+        maps['fa_map'] = fa_map
+    
+    return maps

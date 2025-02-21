@@ -4,7 +4,7 @@ io: &paths
   mask_path: data/new_data/CALIPR_HC/CALIPR_qT2_SPIRALlongFOVmoreUS_20240808.user_rrdf_20241011_093250_calipr_recon_all_mask.nii.gz # if no mask, set to Null or False. However, mask is recommended for better performance
   pretrained_model_path: &pretrained_model_path models/rician.h5
   save_folder_path: &save_folder_path results/rician/test/
-  save_prefix: &prefix many_pool_fixed_sigma
+  save_prefix: &prefix epg_gaussian
   descrip: many pool with fixed sigma # add descriptive text to header (max 80 chars)
 
 sequence:
@@ -15,7 +15,7 @@ sequence:
 fitting:
   fitting_model: &fitting_model parametric # selections = [parametric, nonparametric]
   decay_model: &decay_model epg # selections = [exp, epg]
-  noise_model: &noise_model rician # selections = [gaussian, rician]
+  noise_model: &noise_model gaussian # selections = [gaussian, rician]
   normalization: &normalization True  
   fix_sigma: &fix_sigma False
   remove_negative: &remove_negative False # if True, negative values will be set to 0
@@ -26,7 +26,7 @@ fitting:
 
   number_of_pools: &num_pool 3
   mwf_cutoff: &my_t2_cutoff 0.06
-  train_iterations: &epochs 20
+  train_iterations: &epochs 1
   batch_size: &batch_size 512
   
   parametric: # a typical 3 pool model
@@ -152,13 +152,17 @@ model: &structure
       l2_reg: 0
 
   decoder:
-    name: decoder_exp
+    name: decoder
     num_classes: *num_pool
     nte: *num_te
     first_te: *1st_te
     delta_te: *delta_te
     snr_range: Null # [50, 300]
     normalization: *normalization
+    fix_t1s: True
+    fix_t1s_value: 1.0
+    t1_t2_ratio: 5.0 # if fix_t1s is False, t1_t2_ratio will be used to calculate t1s
+
   
   sled:
     decay_model: *decay_model
@@ -261,6 +265,7 @@ training:
 
 
 postprocessing:
+  decay_model: *decay_model
   mwf_cutoff: *my_t2_cutoff
   mask_mwf_map: *mask_mwf_map
   save_maps: *save_maps 
